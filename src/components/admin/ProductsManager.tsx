@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Trash2, Package, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Package, Loader2, Link as LinkIcon, CreditCard } from 'lucide-react'; // Añadimos iconos
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,11 +13,14 @@ import { toast } from 'sonner';
 export function ProductsManager() {
   const { products, loading } = useProducts();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // 1. ACTUALIZAMOS EL ESTADO PARA INCLUIR IMAGE Y PAYMENTURL
   const [newProduct, setNewProduct] = useState({
     name: '',
     price: '',
     description: '',
-    icon: ''
+    image: '',       // Link de la imagen (ImgBB, etc)
+    paymentUrl: ''   // Link de WhatsApp o Pago
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,17 +34,26 @@ export function ProductsManager() {
     setIsSubmitting(true);
 
     try {
-      await addProduct({
-        name: newProduct.name,
-        price: parseFloat(newProduct.price),
-        description: newProduct.description,
-        icon: newProduct.icon || '📦'
-      });
+  await addProduct({
+    name: newProduct.name,
+    price: parseFloat(newProduct.price),
+    description: newProduct.description,
+    image: newProduct.image || 'https://via.placeholder.com/150', // Si no hay link, pone uno por defecto
+    paymentUrl: newProduct.paymentUrl || '#'
+  });
 
-      setNewProduct({ name: '', price: '', description: '', icon: '' });
-      toast.success('¡Producto agregado exitosamente! 🎉');
-    } catch (error) {
-      toast.error('Error al agregar producto');
+  // Limpiamos todos los campos después de guardar
+  setNewProduct({ 
+    name: '', 
+    price: '', 
+    description: '', 
+    image: '', 
+    paymentUrl: '' 
+  });
+  
+  toast.success('¡Producto agregado con éxito! 🚀');
+}catch (error) {
+      toast.error('Error al agregar el producto');
     } finally {
       setIsSubmitting(false);
     }
@@ -60,154 +72,113 @@ export function ProductsManager() {
 
   return (
     <div className="grid lg:grid-cols-3 gap-6">
-      {/* Add Product Form */}
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-      >
+      <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
         <Card className="border-border/50 shadow-card sticky top-24">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Plus className="h-5 w-5 text-primary" />
-              Agregar Producto
+              Nuevo Producto
             </CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="name">Nombre del producto *</Label>
+                <Label>Nombre del producto *</Label>
                 <Input
-                  id="name"
-                  placeholder="Ej: Camisa Deportiva"
+                  placeholder="Ej: Camisa Urban"
                   value={newProduct.name}
                   onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
                 />
               </div>
 
               <div>
-                <Label htmlFor="price">Precio ($) *</Label>
+                <Label>Precio ($) *</Label>
                 <Input
-                  id="price"
                   type="number"
-                  step="0.01"
                   placeholder="19.99"
                   value={newProduct.price}
                   onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
                 />
               </div>
 
+              {/* 3. NUEVO CAMPO: LINK DE LA IMAGEN */}
               <div>
-                <Label htmlFor="description">Descripción</Label>
+                <Label className="flex items-center gap-1">
+                  <LinkIcon className="h-3 w-3" /> URL de la Imagen (ImgBB)
+                </Label>
+                <Input
+                  placeholder="Pega el link .jpg o .png aquí"
+                  value={newProduct.image}
+                  onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })}
+                />
+              </div>
+
+              {/* 4. NUEVO CAMPO: LINK DE PAGO / WHATSAPP */}
+              <div>
+                <Label className="flex items-center gap-1">
+                  <CreditCard className="h-3 w-3" /> Link de Pago o WhatsApp
+                </Label>
+                <Input
+                  placeholder="https://wa.me/tu_numero"
+                  value={newProduct.paymentUrl}
+                  onChange={(e) => setNewProduct({ ...newProduct, paymentUrl: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <Label>Descripción</Label>
                 <Textarea
-                  id="description"
-                  placeholder="Descripción del producto..."
+                  placeholder="Detalles del producto..."
                   value={newProduct.description}
                   onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
                 />
               </div>
 
-              <div>
-                <Label htmlFor="icon">Emoji / Icono</Label>
-                <Input
-                  id="icon"
-                  placeholder="🎽 o deja vacío"
-                  value={newProduct.icon}
-                  onChange={(e) => setNewProduct({ ...newProduct, icon: e.target.value })}
-                />
-              </div>
-
-              <Button 
-                type="submit" 
-                className="w-full gradient-primary text-primary-foreground gap-2"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <>
-                    <Plus className="h-4 w-4" />
-                    Agregar Producto
-                  </>
-                )}
+              <Button type="submit" className="w-full gradient-primary gap-2" disabled={isSubmitting}>
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Plus className="h-4 w-4" /> Guardar Producto</>}
               </Button>
             </form>
           </CardContent>
         </Card>
       </motion.div>
 
-      {/* Products List */}
+      {/* Lista de productos (Visualización) */}
       <div className="lg:col-span-2">
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-        >
-          <Card className="border-border/50 shadow-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Package className="h-5 w-5 text-primary" />
-                Mis Productos ({products.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="flex justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-              ) : products.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
-                    <Package className="h-8 w-8 text-muted-foreground" />
+        <Card className="border-border/50 shadow-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Package className="h-5 w-5 text-primary" />
+              Mis Productos ({products.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid sm:grid-cols-2 gap-4">
+              {products.map((product) => (
+                <Card key={product.id} className="overflow-hidden group">
+                  {/* MOSTRAMOS LA IMAGEN DEL LINK */}
+                  <div className="h-32 bg-muted relative overflow-hidden">
+                    <img 
+                      src={product.image || 'https://via.placeholder.com/150'} 
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
                   </div>
-                  <p className="text-muted-foreground">
-                    No hay productos. ¡Agrega el primero!
-                  </p>
-                </div>
-              ) : (
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <AnimatePresence mode="popLayout">
-                    {products.map((product, index) => (
-                      <motion.div
-                        key={product.id}
-                        layout
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
-                        transition={{ delay: index * 0.05 }}
-                      >
-                        <Card className="group hover:border-primary/30 transition-colors">
-                          <CardContent className="p-4">
-                            <div className="flex items-start gap-3">
-                              <div className="h-12 w-12 rounded-lg gradient-primary flex items-center justify-center text-2xl shrink-0">
-                                {product.icon}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <h4 className="font-semibold truncate">{product.name}</h4>
-                                <p className="text-sm text-muted-foreground line-clamp-1">
-                                  {product.description || 'Sin descripción'}
-                                </p>
-                                <p className="text-lg font-bold text-primary mt-1">
-                                  ${product.price.toFixed(2)}
-                                </p>
-                              </div>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
-                                onClick={() => handleDelete(product.id, product.name)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-bold">{product.name}</h4>
+                        <p className="text-primary font-bold">${product.price.toFixed(2)}</p>
+                      </div>
+                      <button className="p-2 text-destructive hover:bg-destructive/10 rounded transition-colors" onClick={() => handleDelete(product.id, product.name)}>
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

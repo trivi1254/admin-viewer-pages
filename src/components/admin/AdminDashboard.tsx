@@ -61,14 +61,12 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
 
           <div className="flex items-center gap-3">
             <Link to="/">
-              <Button variant="outline" size="sm" className="gap-2">
+              <Button className="gap-2">
                 <Store className="h-4 w-4" />
                 Ver Tienda
               </Button>
             </Link>
             <Button 
-              variant="ghost" 
-              size="sm" 
               onClick={onLogout}
               className="gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
             >

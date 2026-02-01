@@ -18,14 +18,15 @@ export const db = getFirestore(app);
 
 // Types
 export interface Product {
-  id: string;
+  id?: string;          // El ? significa que es opcional (se crea en la base de datos)
   name: string;
   price: number;
   description: string;
-  icon: string;
-  createdAt: Timestamp | null;
+  icon?: string;        // Lo dejamos opcional para que no den error los productos viejos
+  image: string;        // <--- NUEVO
+  paymentUrl: string;   // <--- NUEVO
+  createdAt: any;
 }
-
 export interface OrderItem {
   id: string;
   name: string;
