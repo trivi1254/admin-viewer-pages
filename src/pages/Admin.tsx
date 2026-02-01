@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom';
 // Asegúrate de que esta ruta sea correcta según donde moviste la carpeta admin
 import { AdminDashboard } from '../components/admin/AdminDashboard';
 
-const ADMIN_PASSWORD = 'admin123';
+const ADMIN_PASSWORD = 'pilartl1254AL';
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
