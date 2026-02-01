@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Lock, Store, Eye, EyeOff, LogOut } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+// Cambiamos @/ por rutas relativas para evitar errores de compilación
+import { Button } from '../components/ui/button'; 
+import { Input } from '../components/ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
-import { AdminDashboard } from '@/components/admin/AdminDashboard';
+// Asegúrate de que esta ruta sea correcta según donde moviste la carpeta admin
+import { AdminDashboard } from '../components/admin/AdminDashboard';
 
-// Contraseña de administrador (puedes cambiarla)
 const ADMIN_PASSWORD = 'admin123';
 
 export default function AdminPage() {
@@ -57,12 +58,12 @@ export default function AdminPage() {
           <Card className="border-border/50 shadow-lg">
             <CardHeader className="text-center">
               <div className="flex justify-center mb-4">
-                <div className="h-16 w-16 rounded-2xl gradient-primary flex items-center justify-center shadow-glow">
+                <div className="h-16 w-16 rounded-2xl bg-primary flex items-center justify-center shadow-lg">
                   <Lock className="h-8 w-8 text-primary-foreground" />
                 </div>
               </div>
-              <CardTitle className="text-2xl font-display">
-                Panel de <span className="text-gradient">Administrador</span>
+              <CardTitle className="text-2xl font-bold">
+                Panel de Administrador
               </CardTitle>
               <CardDescription>
                 Ingresa tu contraseña para acceder al panel de control
@@ -80,7 +81,7 @@ export default function AdminPage() {
                   />
                   <button
                     type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -89,23 +90,23 @@ export default function AdminPage() {
                 
                 <Button 
                   type="submit" 
-                  className="w-full gradient-primary text-primary-foreground"
+                  className="w-full"
                   disabled={isLoading}
                 >
                   {isLoading ? 'Verificando...' : 'Acceder'}
                 </Button>
 
                 <Link to="/" className="block">
-                  <Button type="button" variant="outline" className="w-full gap-2">
+                  <Button type="button" className="w-full gap-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground">
                     <Store className="h-4 w-4" />
                     Volver a la tienda
                   </Button>
                 </Link>
               </form>
 
-              <div className="mt-6 p-4 bg-muted/50 rounded-lg text-center">
-                <p className="text-xs text-muted-foreground">
-                  Contraseña por defecto: <code className="bg-muted px-1 rounded">admin123</code>
+              <div className="mt-6 p-4 bg-slate-100 rounded-lg text-center">
+                <p className="text-xs text-slate-500">
+                  Contraseña: <code className="font-bold">admin123</code>
                 </p>
               </div>
             </CardContent>
