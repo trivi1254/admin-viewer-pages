@@ -1,25 +1,125 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>URBAN-SHOP | Login</title>
+    <meta name="description" content="Inicia sesión en la mejor tienda de ropa urbana" />
     
-    <title>URBAN-SHOP</title>
-    <meta name="description" content="La mejor tienda de ropa urbana" />
-    <meta name="author" content="URBAN-SHOP" />
-
-    <meta property="og:title" content="URBAN-SHOP" />
-    <meta property="og:description" content="Explora nuestra colección de moda urbana." />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@urban-shop" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f0f2f5;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      .login-container {
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        text-align: center;
+        width: 100%;
+        max-width: 350px;
+      }
+      h1 { color: #1a1a1a; margin-bottom: 25px; font-size: 24px; }
+      .btn-social {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: white;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+      }
+      .btn-social img { width: 20px; }
+      .btn-social:hover { background: #f8f9fa; transform: translateY(-1px); }
+      
+      /* Colores específicos */
+      .btn-fb { background: #1877F2; color: white; border: none; }
+      .btn-fb:hover { background: #166fe5; }
+      .btn-tw { background: #000; color: white; border: none; }
+      .btn-tw:hover { background: #222; }
+    </style>
   </head>
 
   <body>
-    <div id="root"></div>
+    <div class="login-container">
+      <h1>URBAN-SHOP</h1>
+      <p style="color: #666; margin-bottom: 30px;">Identifícate para entrar</p>
+
+      <button id="google-login" class="btn-social">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+        Continuar con Google
+      </button>
+
+      <button id="facebook-login" class="btn-social btn-fb">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" alt="Facebook">
+        Continuar con Facebook
+      </button>
+
+      <button id="twitter-login" class="btn-social btn-tw">
+        <img src="https://abs.twimg.com/favicons/twitter-pip.2.ico" alt="Twitter">
+        Continuar con Twitter
+      </button>
+
+      <div id="root"></div>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+      import { 
+        getAuth, 
+        signInWithPopup, 
+        GoogleAuthProvider, 
+        FacebookAuthProvider, 
+        TwitterAuthProvider 
+      } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+      // Tus credenciales de Urban Shop
+      const firebaseConfig = {
+        apiKey: "AIzaSyCFK5dAj4z2mGymaTbe7b5aMyVxvW5EKrM",
+        authDomain: "urban-shop-362d1.firebaseapp.com",
+        projectId: "urban-shop-362d1",
+        storageBucket: "urban-shop-362d1.firebasestorage.app",
+        messagingSenderId: "964832964814",
+        appId: "1:964832964814:web:4a50515319c2206bb6609f",
+        measurementId: "G-8ZYPBK4JMV"
+      };
+
+      // Inicializar
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth();
+
+      const manejarLogin = async (provider) => {
+        try {
+          const result = await signInWithPopup(auth, provider);
+          console.log("Usuario:", result.user.displayName);
+          // Redirige al visualizador de la tienda
+          window.location.href = "./viewer/index.html";
+        } catch (error) {
+          console.error("Error:", error.code);
+          alert("Aviso: Si no has configurado Facebook/Twitter en la consola de Firebase, estos botones darán error. Google ya debería funcionar.");
+        }
+      };
+
+      // Asignar eventos
+      document.getElementById('google-login').onclick = () => manejarLogin(new GoogleAuthProvider());
+      document.getElementById('facebook-login').onclick = () => manejarLogin(new FacebookAuthProvider());
+      document.getElementById('twitter-login').onclick = () => manejarLogin(new TwitterAuthProvider());
+    </script>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
