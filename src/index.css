@@ -6,101 +6,82 @@
 
 @layer base {
   :root {
-    --background: 45 20% 98%;
-    --foreground: 30 10% 15%;
+    /* ===== COLORES BASE (Imagen Jorstan Click) ===== */
+    --background: 210 20% 98%;
+    --foreground: 220 25% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 30 10% 15%;
+    --card-foreground: 220 25% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 30 10% 15%;
+    --popover-foreground: 220 25% 15%;
 
-    --primary: 35 90% 50%;
+    /* Azul principal */
+    --primary: 215 85% 45%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 35 30% 92%;
-    --secondary-foreground: 30 10% 20%;
-
-    --muted: 40 20% 94%;
-    --muted-foreground: 30 10% 45%;
-
-    --accent: 35 80% 55%;
+    /* Turquesa / Click */
+    --accent: 190 85% 45%;
     --accent-foreground: 0 0% 100%;
+
+    --secondary: 210 30% 94%;
+    --secondary-foreground: 220 20% 25%;
+
+    --muted: 210 25% 95%;
+    --muted-foreground: 220 15% 45%;
 
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 35 20% 88%;
-    --input: 35 20% 90%;
-    --ring: 35 90% 50%;
+    --border: 210 20% 88%;
+    --input: 210 20% 90%;
+    --ring: 190 85% 45%;
 
-    --radius: 0.75rem;
+    --radius: 0.9rem;
 
-    --success: 145 65% 42%;
-    --success-foreground: 0 0% 100%;
+    /* ===== GRADIENTES ===== */
+    --gradient-primary: linear-gradient(
+      135deg,
+      hsl(215, 85%, 45%) 0%,
+      hsl(190, 85%, 45%) 100%
+    );
 
-    --warning: 40 95% 55%;
-    --warning-foreground: 30 10% 15%;
+    --gradient-hero: linear-gradient(
+      135deg,
+      hsl(215, 85%, 45%) 0%,
+      hsl(190, 85%, 45%) 60%,
+      hsl(200, 90%, 55%) 100%
+    );
 
-    /* Custom gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(35, 90%, 50%) 0%, hsl(25, 85%, 55%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(35, 90%, 50%) 0%, hsl(45, 95%, 60%) 50%, hsl(25, 85%, 55%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0, 0%, 100%) 0%, hsl(40, 30%, 98%) 100%);
-    --gradient-dark: linear-gradient(135deg, hsl(30, 15%, 12%) 0%, hsl(30, 20%, 8%) 100%);
+    --gradient-card: linear-gradient(
+      180deg,
+      hsl(0, 0%, 100%) 0%,
+      hsl(210, 30%, 98%) 100%
+    );
 
-    /* Shadows */
-    --shadow-sm: 0 2px 8px -2px hsl(35 20% 20% / 0.08);
-    --shadow-md: 0 8px 24px -8px hsl(35 20% 20% / 0.12);
-    --shadow-lg: 0 16px 48px -12px hsl(35 20% 20% / 0.18);
-    --shadow-glow: 0 0 40px -10px hsl(35 90% 50% / 0.35);
-
-    --sidebar-background: 40 15% 97%;
-    --sidebar-foreground: 30 10% 25%;
-    --sidebar-primary: 35 90% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 35 25% 92%;
-    --sidebar-accent-foreground: 30 10% 20%;
-    --sidebar-border: 35 20% 88%;
-    --sidebar-ring: 35 90% 50%;
+    /* ===== SOMBRAS ===== */
+    --shadow-sm: 0 2px 8px -2px hsl(215 40% 20% / 0.08);
+    --shadow-md: 0 10px 28px -8px hsl(215 40% 20% / 0.14);
+    --shadow-lg: 0 20px 50px -12px hsl(215 40% 20% / 0.2);
+    --shadow-glow: 0 0 40px -10px hsl(190 85% 45% / 0.35);
   }
 
   .dark {
-    --background: 30 15% 8%;
-    --foreground: 40 20% 95%;
+    --background: 220 25% 8%;
+    --foreground: 210 20% 95%;
 
-    --card: 30 15% 12%;
-    --card-foreground: 40 20% 95%;
+    --card: 220 25% 12%;
+    --card-foreground: 210 20% 95%;
 
-    --popover: 30 15% 10%;
-    --popover-foreground: 40 20% 95%;
+    --primary: 190 85% 50%;
+    --primary-foreground: 220 25% 8%;
 
-    --primary: 35 90% 55%;
-    --primary-foreground: 30 15% 8%;
+    --accent: 215 85% 55%;
+    --accent-foreground: 220 25% 8%;
 
-    --secondary: 30 15% 18%;
-    --secondary-foreground: 40 20% 90%;
-
-    --muted: 30 12% 18%;
-    --muted-foreground: 40 15% 60%;
-
-    --accent: 35 85% 60%;
-    --accent-foreground: 30 15% 8%;
-
-    --destructive: 0 65% 50%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 30 12% 22%;
-    --input: 30 12% 22%;
-    --ring: 35 90% 55%;
-
-    --sidebar-background: 30 15% 10%;
-    --sidebar-foreground: 40 20% 90%;
-    --sidebar-primary: 35 90% 55%;
-    --sidebar-primary-foreground: 30 15% 8%;
-    --sidebar-accent: 30 12% 18%;
-    --sidebar-accent-foreground: 40 20% 90%;
-    --sidebar-border: 30 12% 22%;
-    --sidebar-ring: 35 90% 55%;
+    --border: 220 20% 22%;
+    --input: 220 20% 22%;
+    --ring: 190 85% 50%;
   }
 }
 
@@ -110,7 +91,7 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground antialiased;
     font-family: 'Inter', sans-serif;
   }
 
@@ -136,10 +117,6 @@
     background: var(--gradient-card);
   }
 
-  .gradient-dark {
-    background: var(--gradient-dark);
-  }
-
   .shadow-glow {
     box-shadow: var(--shadow-glow);
   }
@@ -152,7 +129,7 @@
   }
 }
 
-/* Custom scrollbar */
+/* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -164,10 +141,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--primary) / 0.3);
+  background: hsl(var(--primary) / 0.35);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--primary) / 0.5);
+  background: hsl(var(--primary) / 0.6);
 }
