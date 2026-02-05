@@ -9,7 +9,7 @@ import { deleteOrder } from '@/lib/firebase';
 import { toast } from 'sonner';
 
 export function OrdersPanel() {
-  const { orders, loading } = useOrders();
+  const { orders, loading, error } = useOrders();
 
   const handleDelete = async (id: string) => {
     if (confirm('¿Estás seguro de eliminar este pedido?')) {
@@ -103,6 +103,25 @@ export function OrdersPanel() {
       <div className="flex justify-center py-20">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="border-destructive/50">
+        <CardContent className="p-6">
+          <div className="text-center py-8">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-destructive/10 flex items-center justify-center">
+              <ShoppingBag className="h-8 w-8 text-destructive" />
+            </div>
+            <h3 className="text-lg font-semibold text-destructive mb-2">Error al cargar pedidos</h3>
+            <p className="text-muted-foreground text-sm mb-4">{error}</p>
+            <p className="text-xs text-muted-foreground">
+              Verifica la configuración de Firestore y que los índices estén creados correctamente.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 

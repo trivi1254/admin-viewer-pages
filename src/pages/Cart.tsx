@@ -89,7 +89,9 @@ export default function CartPage() {
       toast.success('¡Pedido realizado con éxito! 🎉 Pronto nos contactaremos contigo.');
       navigate('/');
     } catch (error) {
-      toast.error('Error al procesar el pedido');
+      console.error('Error al procesar pedido:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      toast.error(`Error al procesar el pedido: ${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }
