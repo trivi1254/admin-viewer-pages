@@ -172,3 +172,48 @@ export async function createOrUpdateUserProfile(
     { merge: true } // 🔥 no borra datos anteriores
   );
 }
+/* ========= MÉTODOS DE PAGO ========= */
+
+export function subscribeToPaymentMethods(
+  userId: string,
+  callback: (methods: any[]) => void
+) {
+  const q = query(
+    collection(db, 'users', userId, 'paymentMethods'),
+    orderBy('createdAt', 'desc')
+  );
+
+  return onSnapshot(q, (snapshot) => {
+    const methods = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    callback(methods);
+  });
+}
+/* ========= AÑADIR MÉTODO DE PAGO ========= */
+
+export async function addPaymentMethod(
+  userId: string,
+  methodData: any
+) {
+  const docRef = await addDoc(
+    collection(db, 'users', userId, 'paymentMethods'),
+    {
+      ...methodData,
+      createdAt: serverTimestamp(),
+    }
+  );
+
+  return docRef.id;
+} 
+/* ========= BORRAR MÉTODO DE PAGO ========= */
+
+export async function deletePaymentMethod(
+  userId: string,
+  methodId: string
+) {
+  const ref = doc(db, 'users', userId, 'paymentMethods', methodId);
+  await deleteDoc(ref);
+}   
