@@ -12,6 +12,8 @@ import {
   getDoc,
   serverTimestamp,
 } from 'firebase/firestore';
+import { deleteDoc } from 'firebase/firestore';
+
 
 /* ========= CONFIG ========= */
 
@@ -69,6 +71,13 @@ export async function addProduct(productData: any) {
 
   return docRef.id;
 }
+/* ========= PRODUCTOS (ADMIN) ========= */
+
+export async function deleteProduct(productId: string) {
+  const ref = doc(db, 'products', productId);
+  await deleteDoc(ref);
+}
+
 
 /* ========= SUBSCRIPCIÓN PEDIDOS (ADMIN) ========= */
 
