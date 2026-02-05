@@ -1,13 +1,23 @@
 import { motion } from 'framer-motion';
-import { ShoppingCart, User } from 'lucide-react';
+import { ShoppingCart, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Link } from 'react-router-dom';
 
 export function StoreHeader() {
   const { getItemCount } = useCart();
+  const { user, logout } = useAuth();
   const itemCount = getItemCount();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+  };
 
   return (
     <motion.header
@@ -45,12 +55,40 @@ export function StoreHeader() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <Link to="/login">
-            <Button variant="outline" className="gap-2 border-[#1a3a5c] text-[#1a3a5c] hover:bg-[#1a3a5c] hover:text-white">
-              <User className="h-4 w-4" />
-              <span className="hidden sm:inline">Cuenta</span>
-            </Button>
-          </Link>
+          {user ? (
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-200">
+                {user.photoURL ? (
+                  <img
+                    src={user.photoURL}
+                    alt={user.displayName || 'Usuario'}
+                    className="w-6 h-6 rounded-full"
+                  />
+                ) : (
+                  <User className="h-4 w-4 text-[#1a3a5c]" />
+                )}
+                <span className="hidden sm:inline text-sm text-[#1a3a5c] font-medium max-w-[120px] truncate">
+                  {user.displayName || user.email?.split('@')[0] || 'Usuario'}
+                </span>
+              </div>
+              <Button
+                variant="outline"
+                size="icon"
+                className="border-red-300 text-red-500 hover:bg-red-50 hover:text-red-600"
+                onClick={handleLogout}
+                title="Cerrar sesión"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <Link to="/login">
+              <Button variant="outline" className="gap-2 border-[#1a3a5c] text-[#1a3a5c] hover:bg-[#1a3a5c] hover:text-white">
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline">Cuenta</span>
+              </Button>
+            </Link>
+          )}
           <Link to="/cart">
             <Button variant="outline" className="relative gap-2 border-[#00d4aa] text-[#1a3a5c] hover:bg-[#00d4aa] hover:text-white">
               <ShoppingCart className="h-5 w-5" />

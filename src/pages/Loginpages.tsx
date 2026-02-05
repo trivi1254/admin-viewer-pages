@@ -1,13 +1,52 @@
-import { GoogleAuthProvider, signInWithRedirect } from "firebase/auth";
+import { GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
-import { Clock, Shield, Globe } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Clock, Shield, Globe, Loader2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useEffect, useState } from "react";
 
 export default function Login() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const [isProcessing, setIsProcessing] = useState(true);
+
+  useEffect(() => {
+    // Handle redirect result from Google OAuth
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          navigate('/');
+        }
+        setIsProcessing(false);
+      })
+      .catch((error) => {
+        console.error("Error en autenticación:", error);
+        setIsProcessing(false);
+      });
+  }, [navigate]);
+
+  useEffect(() => {
+    // If user is already logged in, redirect to home
+    if (!loading && user) {
+      navigate('/');
+    }
+  }, [user, loading, navigate]);
+
   const loginGoogle = () => {
     signInWithRedirect(auth, new GoogleAuthProvider());
   };
+
+  if (loading || isProcessing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f5f7fa]">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-[#00d4aa] mx-auto mb-4" />
+          <p className="text-gray-600">Cargando...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#f5f7fa]">
@@ -102,9 +141,9 @@ export default function Login() {
               <div className="text-center">
                 <p className="text-sm text-gray-500">
                   ¿Aún no tienes cuenta?{" "}
-                  <a href="#" className="text-[#00d4aa] hover:underline font-medium">
+                  <Link to="/register" className="text-[#00d4aa] hover:underline font-medium">
                     Regístrate aquí
-                  </a>
+                  </Link>
                 </p>
               </div>
             </div>
