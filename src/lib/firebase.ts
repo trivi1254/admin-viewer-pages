@@ -210,6 +210,24 @@ export function subscribeToPaymentMethods(
     callback(methods);
   });
 }
+/* ========= MÉTODO DE PAGO POR DEFECTO ========= */
+
+export async function setDefaultPaymentMethod(
+  userId: string,
+  paymentMethodId: string
+) {
+  const ref = doc(db, 'users', userId);
+
+  await setDoc(
+    ref,
+    {
+      defaultPaymentMethod: paymentMethodId,
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true }
+  );
+}
+
 /* ========= AÑADIR MÉTODO DE PAGO ========= */
 
 export async function addPaymentMethod(
