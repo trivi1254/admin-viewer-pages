@@ -12,7 +12,7 @@ import { auth, authReady, checkIsAdmin, setAdminUser } from '../lib/firebase';
 
 // Lista de correos autorizados como administradores
 const ADMIN_EMAILS = [
-  'jorstanclick@gmail.com',
+  'johnmichaelloor@gmail.com',
   // Agrega aqui mas correos de administradores autorizados
 ];
 
