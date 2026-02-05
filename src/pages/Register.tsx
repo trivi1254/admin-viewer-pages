@@ -25,7 +25,7 @@ export default function Register() {
     getRedirectResult(auth)
       .then((result) => {
         if (result?.user) {
-          navigate('/');
+          navigate('/profile');
         }
         setIsProcessing(false);
       })
@@ -37,7 +37,7 @@ export default function Register() {
 
   useEffect(() => {
     if (!loading && user) {
-      navigate('/');
+      navigate('/profile');
     }
   }, [user, loading, navigate]);
 
@@ -79,7 +79,7 @@ export default function Register() {
       }
 
       toast.success("¡Cuenta creada exitosamente!");
-      navigate('/');
+      navigate('/profile');
     } catch (error: any) {
       console.error("Error al registrar:", error);
 

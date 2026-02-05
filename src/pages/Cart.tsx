@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingCart, Minus, Plus, Trash2, ArrowLeft, CreditCard, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { useCart } from '@/contexts/CartContext';
-import { addOrder } from '@/lib/firebase';
+import { useAuth } from '@/contexts/AuthContext';
+import { addOrder, addUserOrder, getUserProfile } from '@/lib/firebase';
 import { toast } from 'sonner';
 import { Link, useNavigate } from 'react-router-dom';
 import { StoreHeader } from '@/components/store/StoreHeader';
@@ -16,6 +17,7 @@ import { StoreFooter } from '@/components/store/StoreFooter';
 
 export default function CartPage() {
   const { cart, updateQuantity, removeFromCart, getTotal, clearCart } = useCart();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [customer, setCustomer] = useState({
     name: '',
@@ -23,6 +25,29 @@ export default function CartPage() {
     address: ''
   });
   const navigate = useNavigate();
+
+  // Pre-fill customer data from user profile if logged in
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      if (user) {
+        const profile = await getUserProfile(user.uid);
+        if (profile) {
+          setCustomer({
+            name: profile.displayName || user.displayName || '',
+            phone: profile.phone || '',
+            address: profile.address || ''
+          });
+        } else {
+          setCustomer({
+            name: user.displayName || '',
+            phone: '',
+            address: ''
+          });
+        }
+      }
+    };
+    loadUserProfile();
+  }, [user]);
 
   const handleCheckout = async () => {
     if (!customer.name || !customer.phone || !customer.address) {
@@ -38,12 +63,27 @@ export default function CartPage() {
     setIsSubmitting(true);
 
     try {
+      const orderDate = new Date().toISOString();
+
+      // Save to general orders collection (for admin view)
       await addOrder({
         customer,
         items: cart,
         total: getTotal(),
-        date: new Date().toISOString()
+        date: orderDate
       });
+
+      // If user is logged in, also save to user's personal orders
+      if (user) {
+        await addUserOrder({
+          userId: user.uid,
+          customer,
+          items: cart,
+          total: getTotal(),
+          status: 'pending',
+          date: orderDate
+        });
+      }
 
       clearCart();
       toast.success('¡Pedido realizado con éxito! 🎉 Pronto nos contactaremos contigo.');
