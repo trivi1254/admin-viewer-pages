@@ -217,3 +217,39 @@ export async function deletePaymentMethod(
   const ref = doc(db, 'users', userId, 'paymentMethods', methodId);
   await deleteDoc(ref);
 }   
+/* ========= PEDIDOS DEL USUARIO ========= */
+
+export function subscribeToUserOrders(
+  userId: string,
+  callback: (orders: any[]) => void
+) {
+  const q = query(
+    collection(db, 'users', userId, 'orders'),
+    orderBy('createdAt', 'desc')
+  );
+
+  return onSnapshot(q, (snapshot) => {
+    const orders = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    callback(orders);
+  });
+}
+/* ========= DETALLES DEL PEDIDO ========= */
+
+export async function getOrderDetails(
+  userId: string,
+  orderId: string
+) {
+  const ref = doc(db, 'users', userId, 'orders', orderId);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) return null;
+
+  return {
+    id: snap.id,
+    ...snap.data(),
+  };
+}
