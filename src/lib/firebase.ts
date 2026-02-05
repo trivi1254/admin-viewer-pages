@@ -19,9 +19,16 @@ export const db = getFirestore(app);
 export const auth = getAuth(app);
 
 // Set persistence to LOCAL (persists even after browser close)
-setPersistence(auth, browserLocalPersistence).catch((error) => {
-  console.error("Error setting persistence:", error);
-});
+// This promise ensures persistence is configured before auth operations
+export const authReady = setPersistence(auth, browserLocalPersistence)
+  .then(() => {
+    console.log("Firebase auth persistence configured successfully");
+    return true;
+  })
+  .catch((error) => {
+    console.error("Error setting persistence:", error);
+    return false;
+  });
 
 // Types
 export interface Product {
