@@ -47,9 +47,9 @@ export default function CartPage() {
       const profile = await getUserProfile(user.uid);
 
       setCustomer({
-        name: profile?.displayName || user.displayName || '',
-        phone: profile?.phone || '',
-        address: profile?.address || ''
+        name: (profile && 'name' in profile ? String(profile.name) : null) || user.displayName || '',
+        phone: (profile && 'phone' in profile ? String(profile.phone) : '') || '',
+        address: (profile && 'address' in profile ? String(profile.address) : '') || ''
       });
     };
 
@@ -78,6 +78,7 @@ export default function CartPage() {
 
     try {
       const orderDate = new Date().toISOString();
+      const orderId = `order_${Date.now()}`;
 
       const orderData = {
         userId: user.uid, // 🔥 CLAVE PARA FIRESTORE RULES
@@ -92,7 +93,7 @@ export default function CartPage() {
       await addOrder(orderData);
 
       // 📁 Pedido del usuario
-      await addUserOrder(orderData);
+      await addUserOrder(user.uid, orderId, orderData);
 
       clearCart();
       toast.success('¡Pedido realizado con éxito! 🎉');

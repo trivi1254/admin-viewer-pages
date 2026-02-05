@@ -2,71 +2,99 @@ import { initializeApp } from 'firebase/app';
 import {
   getFirestore,
   collection,
-  addDoc,
-  doc,
-  getDoc,
-  serverTimestamp
+  onSnapshot,
+  query,
+  orderBy,
 } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import { toast } from 'sonner';
+import { useEffect, useState } from 'react';
 
-/* =========================
-   CONFIG FIREBASE
-   ========================= */
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-const app = initializeApp(firebaseConfig);
-
-export const auth = getAuth(app);
+export const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 
-/* =========================
-   PEDIDOS
-   ========================= */
+/* ========= TIPOS ========= */
 
-// Pedido general (admin)
-export const addOrder = async (orderData: any) => {
-  if (!auth.currentUser) {
-    throw new Error('Usuario no autenticado');
-  }
+export interface Product {
+  id: string;
+  name: string;
+  price: number;
+  image?: string;
+  createdAt?: any;
+}
 
-  return await addDoc(collection(db, 'orders'), {
-    ...orderData,
-    createdAt: serverTimestamp()
-  });
-};
+/* ========= SUBSCRIPCIÓN ========= */
 
-// Pedido del usuario
-export const addUserOrder = async (orderData: any) => {
-  if (!auth.currentUser) {
-    throw new Error('Usuario no autenticado');
-  }
-
-  const userId = auth.currentUser.uid;
-
-  return await addDoc(
-    collection(db, `users/${userId}/orders`),
-    {
-      ...orderData,
-      createdAt: serverTimestamp()
-    }
+export function subscribeToProducts(
+  callback: (products: Product[]) => void
+) {
+  const q = query(
+    collection(db, 'products'),
+    orderBy('createdAt', 'desc')
   );
-};
 
-/* =========================
-   PERFIL USUARIO
-   ========================= */
+  return onSnapshot(q, (snapshot) => {
+    const products: Product[] = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...(doc.data() as Omit<Product, 'id'>),
+    }));
 
-export const getUserProfile = async (uid: string) => {
-  const ref = doc(db, 'users', uid);
+    callback(products);
+  });
+}
+import {
+  doc,
+  setDoc,
+  addDoc,
+  getDoc,
+  serverTimestamp,
+} from 'firebase/firestore';
+
+/* ========= PEDIDOS ========= */
+
+export async function addOrder(orderData: any) {
+  const docRef = await addDoc(collection(db, 'orders'), {
+    ...orderData,
+    createdAt: serverTimestamp(),
+  });
+
+  return docRef.id;
+}
+
+/* ========= PEDIDOS POR USUARIO ========= */
+
+export async function addUserOrder(
+  userId: string,
+  orderId: string,
+  orderData: any
+) {
+  const ref = doc(db, 'users', userId, 'orders', orderId);
+
+  await setDoc(ref, {
+    ...orderData,
+    orderId,
+    createdAt: serverTimestamp(),
+  });
+}
+
+/* ========= PERFIL DE USUARIO ========= */
+
+export async function getUserProfile(userId: string) {
+  const ref = doc(db, 'users', userId);
   const snap = await getDoc(ref);
 
   if (!snap.exists()) return null;
-  return snap.data();
-};
+
+  return {
+    id: snap.id,
+    ...snap.data(),
+  };
+}
