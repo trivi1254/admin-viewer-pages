@@ -289,3 +289,24 @@ export async function getOrderDetails(
     ...snap.data(),
   };
 }
+
+/* ========= ADMIN VERIFICATION ========= */
+
+export async function checkIsAdmin(uid: string): Promise<boolean> {
+  try {
+    const ref = doc(db, 'admins', uid);
+    const snap = await getDoc(ref);
+    return snap.exists();
+  } catch (error) {
+    console.error('Error checking admin status:', error);
+    return false;
+  }
+}
+
+export async function setAdminUser(uid: string, email: string) {
+  const ref = doc(db, 'admins', uid);
+  await setDoc(ref, {
+    email,
+    createdAt: serverTimestamp(),
+  });
+}
