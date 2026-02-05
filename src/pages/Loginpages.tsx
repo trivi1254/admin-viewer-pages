@@ -16,7 +16,7 @@ export default function Login() {
     getRedirectResult(auth)
       .then((result) => {
         if (result?.user) {
-          navigate('/');
+          navigate('/profile');
         }
         setIsProcessing(false);
       })
@@ -27,9 +27,9 @@ export default function Login() {
   }, [navigate]);
 
   useEffect(() => {
-    // If user is already logged in, redirect to home
+    // If user is already logged in, redirect to profile
     if (!loading && user) {
-      navigate('/');
+      navigate('/profile');
     }
   }, [user, loading, navigate]);
 

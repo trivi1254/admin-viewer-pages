@@ -57,7 +57,7 @@ export function StoreHeader() {
         <div className="flex items-center gap-3">
           {user ? (
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-200">
+              <Link to="/profile" className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-200 hover:border-[#00d4aa] hover:bg-[#00d4aa]/5 transition-colors">
                 {user.photoURL ? (
                   <img
                     src={user.photoURL}
@@ -70,7 +70,7 @@ export function StoreHeader() {
                 <span className="hidden sm:inline text-sm text-[#1a3a5c] font-medium max-w-[120px] truncate">
                   {user.displayName || user.email?.split('@')[0] || 'Usuario'}
                 </span>
-              </div>
+              </Link>
               <Button
                 variant="outline"
                 size="icon"
