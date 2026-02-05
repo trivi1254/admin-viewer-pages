@@ -59,6 +59,25 @@ export function subscribeToProducts(
     callback(products);
   });
 }
+/* ========= SUBSCRIPCIÓN PEDIDOS (ADMIN) ========= */
+
+export function subscribeToOrders(
+  callback: (orders: any[]) => void
+) {
+  const q = query(
+    collection(db, 'orders'),
+    orderBy('createdAt', 'desc')
+  );
+
+  return onSnapshot(q, (snapshot) => {
+    const orders = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    callback(orders);
+  });
+}
 
 /* ========= PEDIDOS ========= */
 
