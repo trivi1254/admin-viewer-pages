@@ -94,14 +94,19 @@ export default function Profile() {
           });
         } else {
           // Create initial profile
-          const newProfile = {
+          await createOrUpdateUserProfile(user.uid, {
+            uid: user.uid,
+            email: user.email || '',
+            displayName: user.displayName || '',
+            photoURL: user.photoURL || undefined
+          });
+          const newProfile: UserProfile = {
             uid: user.uid,
             email: user.email || '',
             displayName: user.displayName || '',
             photoURL: user.photoURL || undefined
           };
-          await createOrUpdateUserProfile(newProfile);
-          setProfile(newProfile as UserProfile);
+          setProfile(newProfile);
           setEditedProfile({
             displayName: user.displayName || '',
             phone: '',
@@ -186,8 +191,7 @@ export default function Profile() {
     }
 
     try {
-      await addPaymentMethod({
-        userId: user.uid,
+      await addPaymentMethod(user.uid, {
         type: newPaymentMethod.type,
         name: newPaymentMethod.name,
         lastFour: newPaymentMethod.type === 'card' ? newPaymentMethod.lastFour : undefined,
@@ -211,8 +215,9 @@ export default function Profile() {
   };
 
   const handleDeletePaymentMethod = async (id: string) => {
+    if (!user) return;
     try {
-      await deletePaymentMethod(id);
+      await deletePaymentMethod(user.uid, id);
       toast.success('Método de pago eliminado');
     } catch (error) {
       toast.error('Error al eliminar el método de pago');
