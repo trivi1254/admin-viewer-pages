@@ -8,16 +8,22 @@ export function useOrders() {
 
   useEffect(() => {
     setLoading(true);
-    try {
-      const unsubscribe = subscribeToOrders((data) => {
+    setError(null);
+
+    const unsubscribe = subscribeToOrders(
+      (data) => {
         setOrders(data);
         setLoading(false);
-      });
-      return () => unsubscribe();
-    } catch (err) {
-      setError('Error al cargar pedidos');
-      setLoading(false);
-    }
+        setError(null);
+      },
+      (err) => {
+        console.error('Error al cargar pedidos:', err);
+        setError(err.message || 'Error al cargar pedidos');
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
   }, []);
 
   const getTotalRevenue = () => {

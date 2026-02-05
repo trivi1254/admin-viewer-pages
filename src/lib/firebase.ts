@@ -92,25 +92,44 @@ export const subscribeToProducts = (callback: (products: Product[]) => void) => 
 
 // Orders
 export const addOrder = async (order: Omit<Order, 'id' | 'createdAt'>) => {
-  return await addDoc(ordersCollection, {
-    ...order,
-    createdAt: serverTimestamp()
-  });
+  try {
+    const docRef = await addDoc(ordersCollection, {
+      ...order,
+      createdAt: serverTimestamp()
+    });
+    console.log('Order saved successfully with ID:', docRef.id);
+    return docRef;
+  } catch (error) {
+    console.error('Error saving order to Firestore:', error);
+    throw error;
+  }
 };
 
 export const deleteOrder = async (id: string) => {
   return await deleteDoc(doc(db, 'orders', id));
 };
 
-export const subscribeToOrders = (callback: (orders: Order[]) => void) => {
+export const subscribeToOrders = (
+  callback: (orders: Order[]) => void,
+  onError?: (error: Error) => void
+) => {
   const q = query(ordersCollection, orderBy('createdAt', 'desc'));
-  return onSnapshot(q, (snapshot) => {
-    const orders: Order[] = [];
-    snapshot.forEach((doc) => {
-      orders.push({ id: doc.id, ...doc.data() } as Order);
-    });
-    callback(orders);
-  });
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const orders: Order[] = [];
+      snapshot.forEach((doc) => {
+        orders.push({ id: doc.id, ...doc.data() } as Order);
+      });
+      callback(orders);
+    },
+    (error) => {
+      console.error('Firestore subscription error:', error);
+      if (onError) {
+        onError(error);
+      }
+    }
+  );
 };
 
 export { serverTimestamp };
@@ -238,10 +257,17 @@ export const setDefaultPaymentMethod = async (userId: string, methodId: string) 
 
 // User Orders Functions
 export const addUserOrder = async (order: Omit<UserOrder, 'id' | 'createdAt'>) => {
-  return await addDoc(userOrdersCollection, {
-    ...order,
-    createdAt: serverTimestamp()
-  });
+  try {
+    const docRef = await addDoc(userOrdersCollection, {
+      ...order,
+      createdAt: serverTimestamp()
+    });
+    console.log('User order saved successfully with ID:', docRef.id);
+    return docRef;
+  } catch (error) {
+    console.error('Error saving user order to Firestore:', error);
+    throw error;
+  }
 };
 
 export const subscribeToUserOrders = (userId: string, callback: (orders: UserOrder[]) => void) => {
