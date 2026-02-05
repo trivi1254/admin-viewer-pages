@@ -77,6 +77,12 @@ export async function deleteProduct(productId: string) {
   const ref = doc(db, 'products', productId);
   await deleteDoc(ref);
 }
+/* ========= PEDIDOS (ADMIN) ========= */
+
+export async function deleteOrder(orderId: string) {
+  const ref = doc(db, 'orders', orderId);
+  await deleteDoc(ref);
+}
 
 
 /* ========= SUBSCRIPCIÓN PEDIDOS (ADMIN) ========= */
