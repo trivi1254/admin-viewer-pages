@@ -147,6 +147,24 @@ export async function getUserProfile(userId: string) {
     ...snap.data(),
   };
 }
+/* ========= ACTUALIZAR PERFIL DE USUARIO ========= */
+
+export async function updateUserProfile(
+  userId: string,
+  data: any
+) {
+  const ref = doc(db, 'users', userId);
+
+  await setDoc(
+    ref,
+    {
+      ...data,
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true } // 🔥 no borra datos existentes
+  );
+}
+
 /* ========= AUTH READY ========= */
 
 export const authReady = new Promise<void>((resolve) => {
