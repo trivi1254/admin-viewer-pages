@@ -1,13 +1,19 @@
 import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
 import {
   getFirestore,
   collection,
   onSnapshot,
   query,
   orderBy,
+  doc,
+  setDoc,
+  addDoc,
+  getDoc,
+  serverTimestamp,
 } from 'firebase/firestore';
-import { toast } from 'sonner';
-import { useEffect, useState } from 'react';
+
+/* ========= CONFIG ========= */
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -18,7 +24,10 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
+/* ========= INIT ========= */
+
 export const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);      // 🔥 ESTO ARREGLA EL ERROR
 export const db = getFirestore(app);
 
 /* ========= TIPOS ========= */
@@ -31,7 +40,7 @@ export interface Product {
   createdAt?: any;
 }
 
-/* ========= SUBSCRIPCIÓN ========= */
+/* ========= PRODUCTOS ========= */
 
 export function subscribeToProducts(
   callback: (products: Product[]) => void
@@ -50,13 +59,6 @@ export function subscribeToProducts(
     callback(products);
   });
 }
-import {
-  doc,
-  setDoc,
-  addDoc,
-  getDoc,
-  serverTimestamp,
-} from 'firebase/firestore';
 
 /* ========= PEDIDOS ========= */
 
