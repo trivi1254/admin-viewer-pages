@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Trash2, Package, Loader2, Link as LinkIcon, CreditCard } from 'lucide-react'; // Añadimos iconos
+import { Plus, Trash2, Package, Loader2, Link as LinkIcon, CreditCard, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,22 +10,34 @@ import { useProducts } from '@/hooks/useProducts';
 import { addProduct, deleteProduct } from '@/lib/firebase';
 import { toast } from 'sonner';
 
+const PRODUCT_CATEGORIES = [
+  'Electrónica',
+  'Ropa',
+  'Hogar',
+  'Deportes',
+  'Belleza',
+  'Juguetes',
+  'Alimentos',
+  'Accesorios',
+  'Otro'
+];
+
 export function ProductsManager() {
   const { products, loading } = useProducts();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  // 1. ACTUALIZAMOS EL ESTADO PARA INCLUIR IMAGE Y PAYMENTURL
+
   const [newProduct, setNewProduct] = useState({
     name: '',
     price: '',
     description: '',
-    image: '',       // Link de la imagen (ImgBB, etc)
-    paymentUrl: ''   // Link de WhatsApp o Pago
+    image: '',
+    paymentUrl: '',
+    category: ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!newProduct.name || !newProduct.price) {
       toast.error('Nombre y precio son requeridos');
       return;
@@ -34,25 +46,26 @@ export function ProductsManager() {
     setIsSubmitting(true);
 
     try {
-  await addProduct({
-    name: newProduct.name,
-    price: parseFloat(newProduct.price),
-    description: newProduct.description,
-    image: newProduct.image || 'https://via.placeholder.com/150', // Si no hay link, pone uno por defecto
-    paymentUrl: newProduct.paymentUrl || '#'
-  });
+      await addProduct({
+        name: newProduct.name,
+        price: parseFloat(newProduct.price),
+        description: newProduct.description,
+        image: newProduct.image || 'https://via.placeholder.com/150',
+        paymentUrl: newProduct.paymentUrl || '#',
+        category: newProduct.category || 'Otro'
+      });
 
-  // Limpiamos todos los campos después de guardar
-  setNewProduct({ 
-    name: '', 
-    price: '', 
-    description: '', 
-    image: '', 
-    paymentUrl: '' 
-  });
-  
-  toast.success('¡Producto agregado con éxito! 🚀');
-}catch (error) {
+      setNewProduct({
+        name: '',
+        price: '',
+        description: '',
+        image: '',
+        paymentUrl: '',
+        category: ''
+      });
+
+      toast.success('Producto agregado con éxito!');
+    } catch (error) {
       toast.error('Error al agregar el producto');
     } finally {
       setIsSubmitting(false);
@@ -101,7 +114,22 @@ export function ProductsManager() {
                 />
               </div>
 
-              {/* 3. NUEVO CAMPO: LINK DE LA IMAGEN */}
+              <div>
+                <Label className="flex items-center gap-1">
+                  <Tag className="h-3 w-3" /> Categoría
+                </Label>
+                <select
+                  value={newProduct.category}
+                  onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  <option value="">Seleccionar categoría</option>
+                  {PRODUCT_CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+
               <div>
                 <Label className="flex items-center gap-1">
                   <LinkIcon className="h-3 w-3" /> URL de la Imagen (ImgBB)
@@ -113,7 +141,6 @@ export function ProductsManager() {
                 />
               </div>
 
-              {/* 4. NUEVO CAMPO: LINK DE PAGO / WHATSAPP */}
               <div>
                 <Label className="flex items-center gap-1">
                   <CreditCard className="h-3 w-3" /> Link de Pago o WhatsApp
@@ -142,7 +169,7 @@ export function ProductsManager() {
         </Card>
       </motion.div>
 
-      {/* Lista de productos (Visualización) */}
+      {/* Lista de productos */}
       <div className="lg:col-span-2">
         <Card className="border-border/50 shadow-card">
           <CardHeader>
@@ -155,13 +182,17 @@ export function ProductsManager() {
             <div className="grid sm:grid-cols-2 gap-4">
               {products.map((product) => (
                 <Card key={product.id} className="overflow-hidden group">
-                  {/* MOSTRAMOS LA IMAGEN DEL LINK */}
                   <div className="h-32 bg-muted relative overflow-hidden">
-                    <img 
-                      src={product.image || 'https://via.placeholder.com/150'} 
+                    <img
+                      src={product.image || 'https://via.placeholder.com/150'}
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     />
+                    {product.category && (
+                      <span className="absolute top-2 left-2 px-2 py-0.5 bg-[#00d4aa] text-white text-xs rounded-full">
+                        {product.category}
+                      </span>
+                    )}
                   </div>
                   <CardContent className="p-4">
                     <div className="flex justify-between items-start">

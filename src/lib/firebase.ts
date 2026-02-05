@@ -41,6 +41,51 @@ export interface Product {
   name: string;
   price: number;
   image?: string;
+  icon?: string;
+  description?: string;
+  category?: string;
+  paymentUrl?: string;
+  createdAt?: any;
+}
+
+export interface OrderItem {
+  id: string;
+  name: string;
+  icon?: string;
+  price: number;
+  quantity: number;
+}
+
+export interface UserProfile {
+  id?: string;
+  uid?: string;
+  email: string;
+  displayName?: string;
+  photoURL?: string;
+  phone?: string;
+  address?: string;
+  updatedAt?: any;
+}
+
+export interface PaymentMethod {
+  id?: string;
+  userId: string;
+  type: 'card' | 'bank' | 'paypal';
+  name: string;
+  lastFour?: string;
+  expiryDate?: string;
+  bankName?: string;
+  isDefault: boolean;
+  createdAt?: any;
+}
+
+export interface UserOrder {
+  id?: string;
+  orderId?: string;
+  items: OrderItem[];
+  total: number;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  date: string;
   createdAt?: any;
 }
 
@@ -136,7 +181,7 @@ export async function addUserOrder(
 
 /* ========= PERFIL DE USUARIO ========= */
 
-export async function getUserProfile(userId: string) {
+export async function getUserProfile(userId: string): Promise<UserProfile | null> {
   const ref = doc(db, 'users', userId);
   const snap = await getDoc(ref);
 
@@ -145,7 +190,7 @@ export async function getUserProfile(userId: string) {
   return {
     id: snap.id,
     ...snap.data(),
-  };
+  } as UserProfile;
 }
 /* ========= ACTUALIZAR PERFIL DE USUARIO ========= */
 
@@ -194,7 +239,7 @@ export async function createOrUpdateUserProfile(
 
 export function subscribeToPaymentMethods(
   userId: string,
-  callback: (methods: any[]) => void
+  callback: (methods: PaymentMethod[]) => void
 ) {
   const q = query(
     collection(db, 'users', userId, 'paymentMethods'),
@@ -257,7 +302,7 @@ export async function deletePaymentMethod(
 
 export function subscribeToUserOrders(
   userId: string,
-  callback: (orders: any[]) => void
+  callback: (orders: UserOrder[]) => void
 ) {
   const q = query(
     collection(db, 'users', userId, 'orders'),
