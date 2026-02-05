@@ -59,6 +59,17 @@ export function subscribeToProducts(
     callback(products);
   });
 }
+/* ========= PRODUCTOS (ADMIN) ========= */
+
+export async function addProduct(productData: any) {
+  const docRef = await addDoc(collection(db, 'products'), {
+    ...productData,
+    createdAt: serverTimestamp(),
+  });
+
+  return docRef.id;
+}
+
 /* ========= SUBSCRIPCIÓN PEDIDOS (ADMIN) ========= */
 
 export function subscribeToOrders(
