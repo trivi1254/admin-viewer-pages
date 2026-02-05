@@ -155,4 +155,20 @@ export const authReady = new Promise<void>((resolve) => {
     resolve();
   });
 });
+/* ========= CREAR / ACTUALIZAR PERFIL ========= */
 
+export async function createOrUpdateUserProfile(
+  userId: string,
+  data: any
+) {
+  const ref = doc(db, 'users', userId);
+
+  await setDoc(
+    ref,
+    {
+      ...data,
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true } // 🔥 no borra datos anteriores
+  );
+}
