@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import {
   getFirestore,
   collection,
@@ -13,6 +13,8 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 import { deleteDoc } from 'firebase/firestore';
+
+
 
 
 /* ========= CONFIG ========= */
@@ -145,3 +147,12 @@ export async function getUserProfile(userId: string) {
     ...snap.data(),
   };
 }
+/* ========= AUTH READY ========= */
+
+export const authReady = new Promise<void>((resolve) => {
+  const unsubscribe = onAuthStateChanged(auth, () => {
+    unsubscribe();
+    resolve();
+  });
+});
+
