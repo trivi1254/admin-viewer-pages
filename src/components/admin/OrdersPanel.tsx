@@ -1,15 +1,52 @@
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, User, Phone, MapPin, Trash2, Loader2, Calendar, Printer } from 'lucide-react';
+import {
+  ShoppingBag,
+  User,
+  Phone,
+  MapPin,
+  Trash2,
+  Loader2,
+  Calendar,
+  Printer,
+  RefreshCw,
+  ChevronDown,
+  ChevronUp,
+  Clock,
+  PackageCheck,
+  Truck,
+  CheckCircle2,
+  XCircle,
+  Send,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useOrders } from '@/hooks/useOrders';
-import { deleteOrder } from '@/lib/firebase';
+import { deleteOrder, updateOrderStatus, Order } from '@/lib/firebase';
 import { toast } from 'sonner';
+
+const STATUS_OPTIONS: { value: Order['status']; label: string; icon: typeof Clock; color: string }[] = [
+  { value: 'pending', label: 'Pendiente', icon: Clock, color: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
+  { value: 'processing', label: 'Procesando', icon: PackageCheck, color: 'bg-blue-100 text-blue-800 border-blue-300' },
+  { value: 'shipped', label: 'Enviado', icon: Truck, color: 'bg-purple-100 text-purple-800 border-purple-300' },
+  { value: 'delivered', label: 'Entregado', icon: CheckCircle2, color: 'bg-green-100 text-green-800 border-green-300' },
+  { value: 'cancelled', label: 'Cancelado', icon: XCircle, color: 'bg-red-100 text-red-800 border-red-300' },
+];
+
+function getStatusOption(status: string) {
+  return STATUS_OPTIONS.find(s => s.value === status) || STATUS_OPTIONS[0];
+}
 
 export function OrdersPanel() {
   const { orders, loading, error } = useOrders();
+  const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+  const [statusMessages, setStatusMessages] = useState<Record<string, string>>({});
+  const [selectedStatuses, setSelectedStatuses] = useState<Record<string, Order['status']>>({});
+  const [updatingOrders, setUpdatingOrders] = useState<Record<string, boolean>>({});
 
   const handleDelete = async (id: string) => {
     if (confirm('¿Estás seguro de eliminar este pedido?')) {
@@ -22,9 +59,33 @@ export function OrdersPanel() {
     }
   };
 
+  const handleUpdateStatus = async (order: Order) => {
+    const newStatus = selectedStatuses[order.id] || order.status;
+    const message = statusMessages[order.id] || '';
+
+    if (!message.trim()) {
+      toast.error('Por favor ingresa un mensaje para el cliente');
+      return;
+    }
+
+    setUpdatingOrders(prev => ({ ...prev, [order.id]: true }));
+
+    try {
+      await updateOrderStatus(order.id, newStatus, message, order.userId);
+      toast.success('Estado del pedido actualizado');
+      setStatusMessages(prev => ({ ...prev, [order.id]: '' }));
+      setExpandedOrder(null);
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      toast.error('Error al actualizar el estado del pedido');
+    } finally {
+      setUpdatingOrders(prev => ({ ...prev, [order.id]: false }));
+    }
+  };
+
   const handlePrint = (order: typeof orders[0]) => {
     const orderDate = order.createdAt?.toDate() || new Date();
-    
+
     const printContent = `
       <html>
         <head>
@@ -43,22 +104,22 @@ export function OrdersPanel() {
           </style>
         </head>
         <body>
-          <h1>🛍️ URBAN SHOP</h1>
+          <h1>Jorstan Click</h1>
           <h2>COMPROBANTE DE PEDIDO</h2>
-          
+
           <div class="info-box">
             <p><strong>Pedido #:</strong> ${order.id.substring(0, 8)}</p>
             <p><strong>Fecha:</strong> ${orderDate.toLocaleString('es-ES')}</p>
           </div>
 
           <div class="customer-box">
-            <h3>📍 DATOS DEL CLIENTE</h3>
+            <h3>DATOS DEL CLIENTE</h3>
             <p><strong>Nombre:</strong> ${order.customer.name}</p>
             <p><strong>Teléfono:</strong> ${order.customer.phone}</p>
             <p><strong>Dirección:</strong> ${order.customer.address}</p>
           </div>
 
-          <h3>🛒 PRODUCTOS</h3>
+          <h3>PRODUCTOS</h3>
           <table>
             <thead>
               <tr>
@@ -71,7 +132,7 @@ export function OrdersPanel() {
             <tbody>
               ${order.items.map(item => `
                 <tr>
-                  <td>${item.icon} ${item.name}</td>
+                  <td>${item.icon || ''} ${item.name}</td>
                   <td>${item.quantity}</td>
                   <td>$${item.price.toFixed(2)}</td>
                   <td>$${(item.price * item.quantity).toFixed(2)}</td>
@@ -83,7 +144,7 @@ export function OrdersPanel() {
           <div class="total">TOTAL: $${order.total.toFixed(2)}</div>
 
           <div class="footer">
-            <p>¡Gracias por tu compra! 🎉</p>
+            <p>Gracias por tu compra!</p>
             <p>Para cualquier consulta, no dudes en contactarnos</p>
           </div>
         </body>
@@ -152,7 +213,10 @@ export function OrdersPanel() {
               <AnimatePresence mode="popLayout">
                 {orders.map((order, index) => {
                   const orderDate = order.createdAt?.toDate() || new Date();
-                  
+                  const currentStatus = getStatusOption(order.status || 'pending');
+                  const isExpanded = expandedOrder === order.id;
+                  const StatusIcon = currentStatus.icon;
+
                   return (
                     <motion.div
                       key={order.id}
@@ -171,8 +235,9 @@ export function OrdersPanel() {
                                 <Badge variant="outline" className="font-mono">
                                   #{order.id.substring(0, 8)}
                                 </Badge>
-                                <Badge className="bg-success text-success-foreground">
-                                  Nuevo
+                                <Badge className={currentStatus.color}>
+                                  <StatusIcon className="h-3 w-3 mr-1" />
+                                  {currentStatus.label}
                                 </Badge>
                               </div>
                               <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -181,6 +246,21 @@ export function OrdersPanel() {
                               </div>
                             </div>
                             <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="gap-1"
+                                onClick={() => {
+                                  setExpandedOrder(isExpanded ? null : order.id);
+                                  if (!selectedStatuses[order.id]) {
+                                    setSelectedStatuses(prev => ({ ...prev, [order.id]: order.status || 'pending' }));
+                                  }
+                                }}
+                              >
+                                <RefreshCw className="h-4 w-4" />
+                                Estado
+                                {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                              </Button>
                               <Button
                                 variant="outline"
                                 size="sm"
@@ -200,6 +280,103 @@ export function OrdersPanel() {
                               </Button>
                             </div>
                           </div>
+
+                          {/* Status Update Panel */}
+                          <AnimatePresence>
+                            {isExpanded && (
+                              <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="overflow-hidden"
+                              >
+                                <div className="mb-4 p-4 rounded-lg border-2 border-primary/20 bg-primary/5">
+                                  <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                                    <RefreshCw className="h-4 w-4" />
+                                    Actualizar Estado del Pedido
+                                  </h4>
+
+                                  {/* Status Selector */}
+                                  <div className="mb-3">
+                                    <Label className="text-xs text-muted-foreground mb-2 block">Nuevo estado</Label>
+                                    <div className="flex flex-wrap gap-2">
+                                      {STATUS_OPTIONS.map((opt) => {
+                                        const Icon = opt.icon;
+                                        const isSelected = (selectedStatuses[order.id] || order.status) === opt.value;
+                                        return (
+                                          <button
+                                            key={opt.value}
+                                            onClick={() => setSelectedStatuses(prev => ({ ...prev, [order.id]: opt.value }))}
+                                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                                              isSelected
+                                                ? opt.color + ' ring-2 ring-offset-1 ring-current'
+                                                : 'border-gray-200 text-gray-500 hover:border-gray-400'
+                                            }`}
+                                          >
+                                            <Icon className="h-3.5 w-3.5" />
+                                            {opt.label}
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+
+                                  {/* Message Input */}
+                                  <div className="mb-3">
+                                    <Label className="text-xs text-muted-foreground mb-2 block">
+                                      Mensaje para el cliente
+                                    </Label>
+                                    <Input
+                                      value={statusMessages[order.id] || ''}
+                                      onChange={(e) => setStatusMessages(prev => ({ ...prev, [order.id]: e.target.value }))}
+                                      placeholder="Ej: Tu pedido está siendo preparado para envío..."
+                                      className="text-sm"
+                                    />
+                                  </div>
+
+                                  {/* Status History */}
+                                  {order.statusHistory && order.statusHistory.length > 0 && (
+                                    <div className="mb-3">
+                                      <Label className="text-xs text-muted-foreground mb-2 block">Historial de estados</Label>
+                                      <div className="space-y-1.5 max-h-32 overflow-y-auto">
+                                        {order.statusHistory.map((entry, idx) => {
+                                          const entryStatus = getStatusOption(entry.status);
+                                          const EntryIcon = entryStatus.icon;
+                                          return (
+                                            <div key={idx} className="flex items-start gap-2 text-xs p-2 rounded bg-white border">
+                                              <EntryIcon className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                                              <div className="min-w-0">
+                                                <span className="font-medium">{entryStatus.label}:</span>{' '}
+                                                <span className="text-muted-foreground">{entry.message}</span>
+                                                <p className="text-[10px] text-muted-foreground mt-0.5">
+                                                  {new Date(entry.date).toLocaleString('es-ES')}
+                                                </p>
+                                              </div>
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Submit Button */}
+                                  <Button
+                                    size="sm"
+                                    className="w-full gap-2"
+                                    onClick={() => handleUpdateStatus(order)}
+                                    disabled={updatingOrders[order.id]}
+                                  >
+                                    {updatingOrders[order.id] ? (
+                                      <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                      <Send className="h-4 w-4" />
+                                    )}
+                                    Enviar Actualización al Cliente
+                                  </Button>
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
 
                           {/* Customer Info */}
                           <div className="grid sm:grid-cols-3 gap-3 mb-4 p-3 rounded-lg bg-muted/50">
@@ -224,7 +401,7 @@ export function OrdersPanel() {
                             {order.items.map((item, i) => (
                               <div key={i} className="flex justify-between items-center text-sm">
                                 <span>
-                                  {item.icon} {item.name} 
+                                  {item.icon} {item.name}
                                   <span className="text-muted-foreground ml-1">x{item.quantity}</span>
                                 </span>
                                 <span className="font-medium">
