@@ -19,7 +19,14 @@ import {
   Check,
   X,
   Building2,
-  Wallet
+  Wallet,
+  Clock,
+  PackageCheck,
+  Truck,
+  CheckCircle2,
+  XCircle,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -72,6 +79,7 @@ export default function Profile() {
 
   // Orders state
   const [orders, setOrders] = useState<UserOrder[]>([]);
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -165,8 +173,13 @@ export default function Profile() {
       } : null);
       setIsEditing(false);
       toast.success('Perfil actualizado');
-    } catch (error) {
-      toast.error('Error al actualizar el perfil');
+    } catch (error: any) {
+      console.error('Error updating profile:', error);
+      if (error?.code === 'permission-denied') {
+        toast.error('No tienes permisos para actualizar el perfil. Verifica las reglas de Firestore.');
+      } else {
+        toast.error('Error al actualizar el perfil');
+      }
     } finally {
       setIsSaving(false);
     }
@@ -209,8 +222,13 @@ export default function Profile() {
       });
       setShowAddPayment(false);
       toast.success('Método de pago agregado');
-    } catch (error) {
-      toast.error('Error al agregar el método de pago');
+    } catch (error: any) {
+      console.error('Error adding payment method:', error);
+      if (error?.code === 'permission-denied') {
+        toast.error('No tienes permisos. Verifica las reglas de Firestore.');
+      } else {
+        toast.error('Error al agregar el método de pago');
+      }
     }
   };
 
@@ -253,6 +271,17 @@ export default function Profile() {
       case 'delivered': return 'Entregado';
       case 'cancelled': return 'Cancelado';
       default: return status;
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'pending': return Clock;
+      case 'processing': return PackageCheck;
+      case 'shipped': return Truck;
+      case 'delivered': return CheckCircle2;
+      case 'cancelled': return XCircle;
+      default: return Clock;
     }
   };
 
@@ -533,41 +562,127 @@ export default function Profile() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {orders.map((order) => (
-                        <div
-                          key={order.id}
-                          className="border rounded-lg p-4 hover:border-[#00d4aa] transition-colors"
-                        >
-                          <div className="flex items-center justify-between mb-3">
-                            <div>
-                              <p className="font-medium text-[#1a3a5c]">Pedido #{order.id?.slice(-8).toUpperCase()}</p>
-                              <p className="text-sm text-gray-500">{order.date}</p>
-                            </div>
-                            <Badge className={getStatusColor(order.status)}>
-                              {getStatusText(order.status)}
-                            </Badge>
-                          </div>
+                      {orders.map((order) => {
+                        const isExpanded = expandedOrderId === order.id;
+                        const StatusIconComponent = getStatusIcon(order.status);
 
-                          <div className="border-t pt-3">
-                            <div className="flex flex-wrap gap-2 mb-3">
-                              {order.items.map((item, idx) => (
-                                <span key={idx} className="text-sm text-gray-600">
-                                  {item.name} x{item.quantity}
-                                  {idx < order.items.length - 1 && ','}
-                                </span>
-                              ))}
+                        return (
+                          <div
+                            key={order.id}
+                            className="border rounded-lg p-4 hover:border-[#00d4aa] transition-colors"
+                          >
+                            <div className="flex items-center justify-between mb-3">
+                              <div>
+                                <p className="font-medium text-[#1a3a5c]">Pedido #{order.id?.slice(-8).toUpperCase()}</p>
+                                <p className="text-sm text-gray-500">{order.date}</p>
+                              </div>
+                              <Badge className={getStatusColor(order.status)}>
+                                <StatusIconComponent className="w-3 h-3 mr-1" />
+                                {getStatusText(order.status)}
+                              </Badge>
                             </div>
-                            <div className="flex items-center justify-between">
-                              <p className="font-semibold text-[#1a3a5c]">
-                                Total: ${order.total.toLocaleString()}
-                              </p>
-                              <Button variant="ghost" size="sm" className="text-[#00d4aa]">
-                                Ver Detalles
-                              </Button>
+
+                            <div className="border-t pt-3">
+                              <div className="flex flex-wrap gap-2 mb-3">
+                                {order.items.map((item, idx) => (
+                                  <span key={idx} className="text-sm text-gray-600">
+                                    {item.name} x{item.quantity}
+                                    {idx < order.items.length - 1 && ','}
+                                  </span>
+                                ))}
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <p className="font-semibold text-[#1a3a5c]">
+                                  Total: ${order.total.toLocaleString()}
+                                </p>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-[#00d4aa] gap-1"
+                                  onClick={() => setExpandedOrderId(isExpanded ? null : (order.id || null))}
+                                >
+                                  {isExpanded ? (
+                                    <>
+                                      Ocultar <ChevronUp className="w-4 h-4" />
+                                    </>
+                                  ) : (
+                                    <>
+                                      Ver Seguimiento <ChevronDown className="w-4 h-4" />
+                                    </>
+                                  )}
+                                </Button>
+                              </div>
                             </div>
+
+                            {/* Order Tracking Timeline */}
+                            <AnimatePresence>
+                              {isExpanded && (
+                                <motion.div
+                                  initial={{ opacity: 0, height: 0 }}
+                                  animate={{ opacity: 1, height: 'auto' }}
+                                  exit={{ opacity: 0, height: 0 }}
+                                  className="overflow-hidden"
+                                >
+                                  <div className="mt-4 pt-4 border-t">
+                                    <h4 className="text-sm font-semibold text-[#1a3a5c] mb-4 flex items-center gap-2">
+                                      <Package className="w-4 h-4" />
+                                      Seguimiento del Pedido
+                                    </h4>
+
+                                    {order.statusHistory && order.statusHistory.length > 0 ? (
+                                      <div className="relative pl-6">
+                                        {/* Timeline line */}
+                                        <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-gray-200" />
+
+                                        <div className="space-y-4">
+                                          {order.statusHistory.map((entry, idx) => {
+                                            const EntryIcon = getStatusIcon(entry.status);
+                                            const isLatest = idx === order.statusHistory!.length - 1;
+                                            return (
+                                              <div key={idx} className="relative flex items-start gap-3">
+                                                {/* Timeline dot */}
+                                                <div className={`absolute -left-6 w-6 h-6 rounded-full flex items-center justify-center ${
+                                                  isLatest ? 'bg-[#00d4aa] text-white' : 'bg-gray-100 text-gray-500'
+                                                }`}>
+                                                  <EntryIcon className="w-3.5 h-3.5" />
+                                                </div>
+
+                                                <div className={`flex-1 p-3 rounded-lg ${
+                                                  isLatest ? 'bg-[#00d4aa]/5 border border-[#00d4aa]/20' : 'bg-gray-50 border border-gray-100'
+                                                }`}>
+                                                  <div className="flex items-center gap-2 mb-1">
+                                                    <Badge className={`text-[10px] px-1.5 py-0 ${getStatusColor(entry.status as UserOrder['status'])}`}>
+                                                      {getStatusText(entry.status as UserOrder['status'])}
+                                                    </Badge>
+                                                    <span className="text-[11px] text-gray-400">
+                                                      {new Date(entry.date).toLocaleString('es-ES')}
+                                                    </span>
+                                                  </div>
+                                                  <p className="text-sm text-gray-700">{entry.message}</p>
+                                                </div>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div className="text-center py-6 bg-gray-50 rounded-lg">
+                                        <Clock className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                                        <p className="text-sm text-gray-500">
+                                          Tu pedido está siendo procesado.
+                                        </p>
+                                        <p className="text-xs text-gray-400 mt-1">
+                                          Pronto recibirás actualizaciones sobre el estado de tu envío.
+                                        </p>
+                                      </div>
+                                    )}
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </motion.div>

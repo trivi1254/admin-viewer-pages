@@ -10,9 +10,10 @@ import {
   setDoc,
   addDoc,
   getDoc,
+  updateDoc,
   serverTimestamp,
+  deleteDoc,
 } from 'firebase/firestore';
-import { deleteDoc } from 'firebase/firestore';
 
 
 
@@ -87,6 +88,29 @@ export interface UserOrder {
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   date: string;
   createdAt?: any;
+  statusHistory?: StatusHistoryEntry[];
+}
+
+export interface StatusHistoryEntry {
+  status: string;
+  message: string;
+  date: string;
+}
+
+export interface Order {
+  id: string;
+  userId?: string;
+  customer: {
+    name: string;
+    phone: string;
+    address: string;
+  };
+  items: OrderItem[];
+  total: number;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  date?: string;
+  createdAt?: any;
+  statusHistory?: StatusHistoryEntry[];
 }
 
 /* ========= PRODUCTOS ========= */
@@ -131,11 +155,72 @@ export async function deleteOrder(orderId: string) {
   await deleteDoc(ref);
 }
 
+/* ========= ACTUALIZAR ESTADO DE PEDIDO (ADMIN) ========= */
+
+export async function updateOrderStatus(
+  orderId: string,
+  status: Order['status'],
+  message: string,
+  userId?: string
+) {
+  // Update in main orders collection
+  const orderRef = doc(db, 'orders', orderId);
+  const orderSnap = await getDoc(orderRef);
+
+  if (!orderSnap.exists()) {
+    throw new Error('Pedido no encontrado');
+  }
+
+  const orderData = orderSnap.data();
+  const existingHistory = orderData.statusHistory || [];
+
+  const newEntry: StatusHistoryEntry = {
+    status,
+    message,
+    date: new Date().toISOString(),
+  };
+
+  await updateDoc(orderRef, {
+    status,
+    statusHistory: [...existingHistory, newEntry],
+    updatedAt: serverTimestamp(),
+  });
+
+  // Also update the user's personal order subcollection
+  const orderUserId = userId || orderData.userId;
+  if (orderUserId) {
+    const userOrdersRef = collection(db, 'users', orderUserId, 'orders');
+    const userOrdersSnapshot = await new Promise<any>((resolve) => {
+      const unsub = onSnapshot(query(userOrdersRef), (snap) => {
+        unsub();
+        resolve(snap);
+      });
+    });
+
+    // Match user order by date field (shared between admin and user orders)
+    const orderDate = orderData.date;
+    for (const orderDoc of userOrdersSnapshot.docs) {
+      const data = orderDoc.data();
+      if (data.date === orderDate) {
+        const userOrderRef = doc(db, 'users', orderUserId, 'orders', orderDoc.id);
+        const existingUserHistory = data.statusHistory || [];
+        await updateDoc(userOrderRef, {
+          status,
+          statusHistory: [...existingUserHistory, newEntry],
+          updatedAt: serverTimestamp(),
+        });
+        break;
+      }
+    }
+  }
+}
+
 
 /* ========= SUBSCRIPCIÓN PEDIDOS (ADMIN) ========= */
 
 export function subscribeToOrders(
-  callback: (orders: any[]) => void
+  callback: (orders: Order[]) => void,
+  onError?: (error: Error) => void
 ) {
   const q = query(
     collection(db, 'orders'),
@@ -143,12 +228,14 @@ export function subscribeToOrders(
   );
 
   return onSnapshot(q, (snapshot) => {
-    const orders = snapshot.docs.map((doc) => ({
+    const orders: Order[] = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
-    }));
+    })) as Order[];
 
     callback(orders);
+  }, (error) => {
+    if (onError) onError(error);
   });
 }
 
@@ -200,14 +287,23 @@ export async function updateUserProfile(
 ) {
   const ref = doc(db, 'users', userId);
 
-  await setDoc(
-    ref,
-    {
+  // First check if document exists
+  const snap = await getDoc(ref);
+
+  if (snap.exists()) {
+    // Use updateDoc for existing documents (doesn't require full document structure)
+    await updateDoc(ref, {
       ...data,
       updatedAt: serverTimestamp(),
-    },
-    { merge: true } // 🔥 no borra datos existentes
-  );
+    });
+  } else {
+    // Create document if it doesn't exist
+    await setDoc(ref, {
+      uid: userId,
+      ...data,
+      updatedAt: serverTimestamp(),
+    });
+  }
 }
 
 /* ========= AUTH READY ========= */
@@ -279,10 +375,21 @@ export async function addPaymentMethod(
   userId: string,
   methodData: any
 ) {
+  // Ensure the user document exists before adding to subcollection
+  const userRef = doc(db, 'users', userId);
+  const userSnap = await getDoc(userRef);
+  if (!userSnap.exists()) {
+    await setDoc(userRef, {
+      uid: userId,
+      updatedAt: serverTimestamp(),
+    }, { merge: true });
+  }
+
   const docRef = await addDoc(
     collection(db, 'users', userId, 'paymentMethods'),
     {
       ...methodData,
+      userId,
       createdAt: serverTimestamp(),
     }
   );
