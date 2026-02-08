@@ -20,7 +20,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner position="top-right" richColors />
-      <BrowserRouter>
+      <BrowserRouter basename="/admin-viewer-pages">
         <AuthProvider>
           <CartProvider>
             <Routes>
@@ -30,7 +30,6 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/profile" element={<Profile />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </CartProvider>
