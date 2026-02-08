@@ -3,8 +3,8 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
-export default defineConfig(({ mode }) => ({
-  base: "/admin-viewer-pages/",   // ← AGREGA ESTA LÍNEA
+export default defineConfig({
+  base: "/admin-viewer-pages/",
 
   server: {
     host: "::",
@@ -13,10 +13,10 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
-  plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+  plugins: [react(), componentTagger()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
-}));
+});
