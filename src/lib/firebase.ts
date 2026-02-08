@@ -53,6 +53,7 @@ export interface OrderItem {
   id: string;
   name: string;
   icon?: string;
+  image?: string;
   price: number;
   quantity: number;
 }
@@ -142,7 +143,17 @@ export async function addProduct(productData: any) {
 
   return docRef.id;
 }
-/* ========= PRODUCTOS (ADMIN) ========= */
+/* ========= ACTUALIZAR PRODUCTO (ADMIN) ========= */
+
+export async function updateProduct(productId: string, productData: Partial<Omit<Product, 'id'>>) {
+  const ref = doc(db, 'products', productId);
+  await updateDoc(ref, {
+    ...productData,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/* ========= ELIMINAR PRODUCTO (ADMIN) ========= */
 
 export async function deleteProduct(productId: string) {
   const ref = doc(db, 'products', productId);
