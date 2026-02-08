@@ -2,7 +2,7 @@
   "name": "vite_react_shadcn_ts",
   "private": true,
   "version": "0.0.0",
-  "homepage": "https://github.com/trivi1254/admin-viewer-pages.github.io",
+  "homepage": "https://github.com/trivi1254/admin-viewer-pages/",
   "type": "module",
   "scripts": {
     "dev": "vite",
