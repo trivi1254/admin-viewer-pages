@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path"; // Si aquí sale error, es por falta de @types/node
 
 export default defineConfig({
+  base: "/admin-viewer-pages/",   // ← MUY IMPORTANTE (nombre del repositorio)
   plugins: [react()],
   test: {
     environment: "jsdom",
