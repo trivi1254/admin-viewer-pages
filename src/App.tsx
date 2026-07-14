@@ -20,7 +20,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner position="top-right" richColors />
-      <BrowserRouter basename="/admin-viewer-pages">
+      <BrowserRouter>
         <AuthProvider>
           <CartProvider>
             <Routes>
