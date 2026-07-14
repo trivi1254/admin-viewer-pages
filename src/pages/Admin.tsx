@@ -8,7 +8,8 @@ import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import { AdminDashboard } from '../components/admin/AdminDashboard';
 import { useAuth } from '../contexts/AuthContext';
-import { auth, authReady, checkIsAdmin, setAdminUser } from '../lib/firebase';
+import { auth, authReady } from '../lib/firebase';
+import { checkIsAdmin, setAdminUser } from '../lib/database';
 
 // Lista de correos autorizados como administradores
 const ADMIN_EMAILS = [

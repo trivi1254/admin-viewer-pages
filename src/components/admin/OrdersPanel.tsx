@@ -26,7 +26,7 @@ import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useOrders } from '@/hooks/useOrders';
-import { deleteOrder, updateOrderStatus, Order } from '@/lib/firebase';
+import { deleteOrder, updateOrderStatus, Order } from '@/lib/database';
 import { toast } from 'sonner';
 
 const STATUS_OPTIONS: { value: Order['status']; label: string; icon: typeof Clock; color: string }[] = [

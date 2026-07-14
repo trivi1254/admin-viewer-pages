@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Product, OrderItem } from '@/lib/firebase';
+import { Product, OrderItem } from '@/lib/database';
 
 interface CartContextType {
   cart: OrderItem[];

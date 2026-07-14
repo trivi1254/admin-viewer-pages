@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Product, subscribeToProducts } from '@/lib/firebase';
+import { Product, subscribeToProducts } from '@/lib/database';
 
 export function useProducts() {
   const [products, setProducts] = useState<Product[]>([]);

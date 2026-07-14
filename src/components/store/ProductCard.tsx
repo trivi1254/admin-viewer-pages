@@ -3,7 +3,7 @@ import { ShoppingCart, Plus, Tag, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Product } from '@/lib/firebase';
+import { Product } from '@/lib/database';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
 

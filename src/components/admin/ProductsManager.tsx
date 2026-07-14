@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useProducts } from '@/hooks/useProducts';
-import { addProduct, deleteProduct, updateProduct, Product } from '@/lib/firebase';
+import { addProduct, deleteProduct, updateProduct, Product } from '@/lib/database';
 import { toast } from 'sonner';
 
 const PRODUCT_CATEGORIES = [

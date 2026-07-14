@@ -4,7 +4,7 @@ import { Package, Loader2, Search, X, Tag } from 'lucide-react';
 import { ProductCard } from './ProductCard';
 import { ProductDetailModal } from './ProductDetailModal';
 import { useProducts } from '@/hooks/useProducts';
-import { Product } from '@/lib/firebase';
+import { Product } from '@/lib/database';
 
 export function ProductGrid() {
   const { products, loading, error } = useProducts();

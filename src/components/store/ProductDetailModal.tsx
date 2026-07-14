@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShoppingCart, Plus, ExternalLink, Tag, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Product } from '@/lib/firebase';
+import { Product } from '@/lib/database';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
 

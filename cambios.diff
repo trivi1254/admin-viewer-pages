@@ -1,0 +1,426 @@
+diff --git a/package.json b/package.json
+index 20460b0..9823143 100644
+--- a/package.json
++++ b/package.json
+@@ -17,6 +17,7 @@
+   },
+   "dependencies": {
+     "@hookform/resolvers": "^3.10.0",
++    "@supabase/supabase-js": "^2.45.0",
+     "@radix-ui/react-accordion": "^1.2.11",
+     "@radix-ui/react-alert-dialog": "^1.1.14",
+     "@radix-ui/react-aspect-ratio": "^1.1.7",
+diff --git a/src/components/admin/OrdersPanel.tsx b/src/components/admin/OrdersPanel.tsx
+index 08cbe0c..9117667 100644
+--- a/src/components/admin/OrdersPanel.tsx
++++ b/src/components/admin/OrdersPanel.tsx
+@@ -26,7 +26,7 @@ import { Separator } from '@/components/ui/separator';
+ import { Input } from '@/components/ui/input';
+ import { Label } from '@/components/ui/label';
+ import { useOrders } from '@/hooks/useOrders';
+-import { deleteOrder, updateOrderStatus, Order } from '@/lib/firebase';
++import { deleteOrder, updateOrderStatus, Order } from '@/lib/database';
+ import { toast } from 'sonner';
+ 
+ const STATUS_OPTIONS: { value: Order['status']; label: string; icon: typeof Clock; color: string }[] = [
+diff --git a/src/components/admin/ProductsManager.tsx b/src/components/admin/ProductsManager.tsx
+index 6e5cd67..7a6c71c 100644
+--- a/src/components/admin/ProductsManager.tsx
++++ b/src/components/admin/ProductsManager.tsx
+@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
+ import { Textarea } from '@/components/ui/textarea';
+ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+ import { useProducts } from '@/hooks/useProducts';
+-import { addProduct, deleteProduct, updateProduct, Product } from '@/lib/firebase';
++import { addProduct, deleteProduct, updateProduct, Product } from '@/lib/database';
+ import { toast } from 'sonner';
+ 
+ const PRODUCT_CATEGORIES = [
+diff --git a/src/components/store/ProductCard.tsx b/src/components/store/ProductCard.tsx
+index 6c4244f..9513e01 100644
+--- a/src/components/store/ProductCard.tsx
++++ b/src/components/store/ProductCard.tsx
+@@ -3,7 +3,7 @@ import { ShoppingCart, Plus, Tag, Eye } from 'lucide-react';
+ import { Button } from '@/components/ui/button';
+ import { Card, CardContent } from '@/components/ui/card';
+ import { Badge } from '@/components/ui/badge';
+-import { Product } from '@/lib/firebase';
++import { Product } from '@/lib/database';
+ import { useCart } from '@/contexts/CartContext';
+ import { toast } from 'sonner';
+ 
+diff --git a/src/components/store/ProductDetailModal.tsx b/src/components/store/ProductDetailModal.tsx
+index 7bb2edc..22deaa1 100644
+--- a/src/components/store/ProductDetailModal.tsx
++++ b/src/components/store/ProductDetailModal.tsx
+@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
+ import { X, ShoppingCart, Plus, ExternalLink, Tag, Package } from 'lucide-react';
+ import { Button } from '@/components/ui/button';
+ import { Badge } from '@/components/ui/badge';
+-import { Product } from '@/lib/firebase';
++import { Product } from '@/lib/database';
+ import { useCart } from '@/contexts/CartContext';
+ import { toast } from 'sonner';
+ 
+diff --git a/src/components/store/ProductGrid.tsx b/src/components/store/ProductGrid.tsx
+index 16d05a7..7d7cd6a 100644
+--- a/src/components/store/ProductGrid.tsx
++++ b/src/components/store/ProductGrid.tsx
+@@ -4,7 +4,7 @@ import { Package, Loader2, Search, X, Tag } from 'lucide-react';
+ import { ProductCard } from './ProductCard';
+ import { ProductDetailModal } from './ProductDetailModal';
+ import { useProducts } from '@/hooks/useProducts';
+-import { Product } from '@/lib/firebase';
++import { Product } from '@/lib/database';
+ 
+ export function ProductGrid() {
+   const { products, loading, error } = useProducts();
+diff --git a/src/contexts/CartContext.tsx b/src/contexts/CartContext.tsx
+index 4255bfd..5239a27 100644
+--- a/src/contexts/CartContext.tsx
++++ b/src/contexts/CartContext.tsx
+@@ -1,5 +1,5 @@
+ import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+-import { Product, OrderItem } from '@/lib/firebase';
++import { Product, OrderItem } from '@/lib/database';
+ 
+ interface CartContextType {
+   cart: OrderItem[];
+diff --git a/src/hooks/useOrders.ts b/src/hooks/useOrders.ts
+index b65c6a0..9e74672 100644
+--- a/src/hooks/useOrders.ts
++++ b/src/hooks/useOrders.ts
+@@ -1,5 +1,5 @@
+ import { useState, useEffect } from 'react';
+-import { Order, subscribeToOrders } from '@/lib/firebase';
++import { Order, subscribeToOrders } from '@/lib/database';
+ 
+ export function useOrders() {
+   const [orders, setOrders] = useState<Order[]>([]);
+diff --git a/src/hooks/useProducts.ts b/src/hooks/useProducts.ts
+index 28e49ce..605890b 100644
+--- a/src/hooks/useProducts.ts
++++ b/src/hooks/useProducts.ts
+@@ -1,5 +1,5 @@
+ import { useState, useEffect } from 'react';
+-import { Product, subscribeToProducts } from '@/lib/firebase';
++import { Product, subscribeToProducts } from '@/lib/database';
+ 
+ export function useProducts() {
+   const [products, setProducts] = useState<Product[]>([]);
+diff --git a/src/pages/Admin.tsx b/src/pages/Admin.tsx
+index 0b0cdb6..f0f659e 100644
+--- a/src/pages/Admin.tsx
++++ b/src/pages/Admin.tsx
+@@ -8,7 +8,8 @@ import { toast } from 'sonner';
+ import { Link } from 'react-router-dom';
+ import { AdminDashboard } from '../components/admin/AdminDashboard';
+ import { useAuth } from '../contexts/AuthContext';
+-import { auth, authReady, checkIsAdmin, setAdminUser } from '../lib/firebase';
++import { auth, authReady } from '../lib/firebase';
++import { checkIsAdmin, setAdminUser } from '../lib/database';
+ 
+ // Lista de correos autorizados como administradores
+ const ADMIN_EMAILS = [
+diff --git a/src/pages/Cart.tsx b/src/pages/Cart.tsx
+index f2fa4e4..979a6ba 100644
+--- a/src/pages/Cart.tsx
++++ b/src/pages/Cart.tsx
+@@ -1,4 +1,4 @@
+-import { useState, useEffect, useRef } from 'react';
++import { useState, useEffect } from 'react';
+ import { motion, AnimatePresence } from 'framer-motion';
+ import {
+   ShoppingCart,
+@@ -26,30 +26,23 @@ import { Separator } from '@/components/ui/separator';
+ 
+ import { useCart } from '@/contexts/CartContext';
+ import { useAuth } from '@/contexts/AuthContext';
+-import { addOrder, addUserOrder, getUserProfile } from '@/lib/firebase';
++import { getUserProfile, addOrder } from '@/lib/database';
++import { supabase } from '@/lib/supabase';
+ 
+ import { toast } from 'sonner';
+-import { Link, useNavigate } from 'react-router-dom';
++import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+ 
+ import { StoreHeader } from '@/components/store/StoreHeader';
+ import { StoreFooter } from '@/components/store/StoreFooter';
+ 
+-declare global {
+-  interface Window {
+-    paypal?: any;
+-  }
+-}
+-
+ export default function CartPage() {
+   const { cart, updateQuantity, removeFromCart, getTotal, clearCart } = useCart();
+   const { user } = useAuth();
+   const navigate = useNavigate();
++  const [searchParams] = useSearchParams();
+ 
+   const [isSubmitting, setIsSubmitting] = useState(false);
+-  const [paymentMethod, setPaymentMethod] = useState<'paypal' | 'whatsapp'>('paypal');
+-  const [paypalReady, setPaypalReady] = useState(false);
+-  const paypalContainerRef = useRef<HTMLDivElement>(null);
+-  const paypalButtonsRendered = useRef(false);
++  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'whatsapp'>('stripe');
+ 
+   const [customer, setCustomer] = useState({
+     name: '',
+@@ -65,123 +58,81 @@ export default function CartPage() {
+       const profile = await getUserProfile(user.uid);
+ 
+       setCustomer({
+-        name: (profile && 'name' in profile ? String(profile.name) : null) || user.displayName || '',
+-        phone: (profile && 'phone' in profile ? String(profile.phone) : '') || '',
+-        address: (profile && 'address' in profile ? String(profile.address) : '') || ''
++        name: profile?.displayName || user.displayName || '',
++        phone: profile?.phone || '',
++        address: profile?.address || ''
+       });
+     };
+ 
+     loadUserProfile();
+   }, [user]);
+ 
+-  // Load PayPal SDK
+-  useEffect(() => {
+-    const PAYPAL_CLIENT_ID = 'ARmW_pHoGv6iXEXkvvXhJLkfkXEwBRvdRzt0dou2SNAEnUsPArDmrbfmvQVPJzM6vp9dk91_Hb9a30ed';
+-
+-    if (document.querySelector('script[data-paypal-script]')) {
+-      if (window.paypal) {
+-        setPaypalReady(true);
+-      }
+-      return;
+-    }
+-
+-    const script = document.createElement('script');
+-    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD`;
+-    script.setAttribute('data-paypal-script', 'true');
+-    script.async = true;
+-    script.onload = () => {
+-      setPaypalReady(true);
+-    };
+-    script.onerror = () => {
+-      console.error('Error loading PayPal SDK');
+-    };
+-    document.head.appendChild(script);
+-  }, []);
+-
+-  // Render PayPal buttons when ready and method is selected
++  // Si volvemos de Stripe con ?payment=success, el webhook ya creó el
++  // pedido en el servidor — solo limpiamos el carrito local y avisamos.
+   useEffect(() => {
+-    if (
+-      paypalReady &&
+-      paymentMethod === 'paypal' &&
+-      paypalContainerRef.current &&
+-      window.paypal &&
+-      cart.length > 0 &&
+-      !paypalButtonsRendered.current
+-    ) {
+-      paypalContainerRef.current.innerHTML = '';
+-      paypalButtonsRendered.current = true;
+-
+-      window.paypal.Buttons({
+-        style: {
+-          layout: 'vertical',
+-          color: 'gold',
+-          shape: 'rect',
+-          label: 'paypal',
+-          height: 45
+-        },
+-        createOrder: (_data: any, actions: any) => {
+-          return actions.order.create({
+-            purchase_units: [{
+-              description: `Pedido JorstanClick - ${cart.length} artículo(s)`,
+-              amount: {
+-                value: getTotal().toFixed(2)
+-              }
+-            }]
+-          });
+-        },
+-        onApprove: async (_data: any, actions: any) => {
+-          const details = await actions.order.capture();
+-          await processOrder('paypal', details.id);
+-        },
+-        onError: (err: any) => {
+-          console.error('PayPal Error:', err);
+-          toast.error('Error al procesar el pago con PayPal');
+-        }
+-      }).render(paypalContainerRef.current);
+-    }
+-
+-    // Reset rendered flag when payment method changes or cart empties
+-    if (paymentMethod !== 'paypal' || cart.length === 0) {
+-      paypalButtonsRendered.current = false;
++    const payment = searchParams.get('payment');
++    if (payment === 'success') {
++      clearCart();
++      toast.success('¡Pago confirmado! Tu pedido fue registrado.');
++      navigate('/', { replace: true });
++    } else if (payment === 'cancelled') {
++      toast.info('Pago cancelado, tu carrito sigue intacto.');
++      navigate('/cart', { replace: true });
+     }
+-  }, [paypalReady, paymentMethod, cart.length]);
++    // eslint-disable-next-line react-hooks/exhaustive-deps
++  }, [searchParams]);
+ 
+-  const processOrder = async (method: string, paypalTransactionId?: string) => {
++  const validateShipping = () => {
+     if (!user) {
+       toast.error('Debes iniciar sesión para realizar un pedido');
+       navigate('/login');
+-      return;
++      return false;
+     }
+-
+     if (!customer.name || !customer.phone || !customer.address) {
+       toast.error('Por favor completa todos los campos de envío');
+-      return;
++      return false;
+     }
+-
+     if (cart.length === 0) {
+       toast.error('Tu carrito está vacío');
+-      return;
++      return false;
+     }
++    return true;
++  };
+ 
+-    setIsSubmitting(true);
++  const handleStripeCheckout = async () => {
++    if (!validateShipping()) return;
+ 
++    setIsSubmitting(true);
+     try {
+-      const orderDate = new Date().toISOString();
+-      const orderId = `order_${Date.now()}`;
++      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
++        body: {
++          items: cart.map((item) => ({ id: item.id, quantity: item.quantity })),
++          customer,
++          userId: user!.uid,
++        },
++      });
++
++      if (error || !data?.url) throw error || new Error('No se pudo iniciar el pago');
++
++      window.location.href = data.url; // redirige a Stripe Checkout
++    } catch (error) {
++      console.error('Error al iniciar pago con Stripe:', error);
++      toast.error('No se pudo iniciar el pago');
++      setIsSubmitting(false);
++    }
++  };
++
++  const handleWhatsAppCheckout = async () => {
++    if (!validateShipping()) return;
+ 
+-      const orderData = {
+-        userId: user.uid,
++    setIsSubmitting(true);
++    try {
++      await addOrder({
++        userId: user!.uid,
+         customer,
+         items: cart,
+         total: getTotal(),
+-        status: 'pending' as const,
+-        date: orderDate,
+-        paymentMethod: method,
+-        ...(paypalTransactionId && { paypalTransactionId })
+-      };
+-
+-      await addOrder(orderData);
+-      await addUserOrder(user.uid, orderId, orderData);
++      });
+ 
+       clearCart();
+       toast.success('Pedido realizado con éxito!');
+@@ -194,10 +145,6 @@ export default function CartPage() {
+     }
+   };
+ 
+-  const handleWhatsAppCheckout = () => {
+-    processOrder('whatsapp');
+-  };
+-
+   return (
+     <div className="min-h-screen flex flex-col bg-background">
+       <StoreHeader />
+@@ -404,18 +351,14 @@ export default function CartPage() {
+                       <button
+                         type="button"
+                         className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
+-                          paymentMethod === 'paypal'
+-                            ? 'border-[#0070ba] bg-[#0070ba]/5'
+-                            : 'border-border hover:border-[#0070ba]/50'
++                          paymentMethod === 'stripe'
++                            ? 'border-[#635bff] bg-[#635bff]/5'
++                            : 'border-border hover:border-[#635bff]/50'
+                         }`}
+-                        onClick={() => setPaymentMethod('paypal')}
++                        onClick={() => setPaymentMethod('stripe')}
+                       >
+-                        <svg viewBox="0 0 24 24" className="h-8 w-8" fill="none">
+-                          <path d="M7.076 21.337H2.47a.641.641 0 01-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797H9.283c-.527 0-.974.382-1.056.9L7.076 21.337z" fill="#253B80"/>
+-                          <path d="M20.16 7.035c-.01.06-.02.12-.034.18C19.07 12.79 15.68 14.53 11.383 14.53H9.283c-.527 0-.974.382-1.056.9l-1.178 7.466a.538.538 0 00.532.62h3.704c.46 0 .852-.334.924-.788l.038-.197.732-4.64.047-.256a.932.932 0 01.921-.788h.58c3.76 0 6.705-1.528 7.565-5.946.36-1.847.173-3.388-.777-4.471a3.71 3.71 0 00-1.065-.855z" fill="#179BD7"/>
+-                          <path d="M19.064 6.59a8.884 8.884 0 00-1.09-.245 13.876 13.876 0 00-2.2-.16H10.36a.932.932 0 00-.92.788L8.26 15.239l-.033.21a1.06 1.06 0 011.056-.9h2.153c4.298 0 7.687-1.745 8.67-6.797.03-.15.054-.295.077-.437a4.853 4.853 0 00-1.12-.724z" fill="#222D65"/>
+-                        </svg>
+-                        <span className="text-sm font-medium">PayPal</span>
++                        <CreditCard className="h-8 w-8 text-[#635bff]" />
++                        <span className="text-sm font-medium">Tarjeta (Stripe)</span>
+                       </button>
+ 
+                       <button
+@@ -434,17 +377,23 @@ export default function CartPage() {
+                       </button>
+                     </div>
+ 
+-                    {/* PayPal buttons */}
+-                    {paymentMethod === 'paypal' && (
+-                      <div className="space-y-3">
+-                        {!paypalReady && (
+-                          <div className="flex items-center justify-center py-4">
+-                            <Loader2 className="h-5 w-5 animate-spin mr-2" />
+-                            <span className="text-sm text-muted-foreground">Cargando PayPal...</span>
+-                          </div>
++                    {/* Stripe checkout */}
++                    {paymentMethod === 'stripe' && (
++                      <Button
++                        className="w-full h-12 bg-[#635bff] hover:bg-[#5147e5] text-white gap-2"
++                        size="lg"
++                        onClick={handleStripeCheckout}
++                        disabled={isSubmitting}
++                      >
++                        {isSubmitting ? (
++                          <Loader2 className="animate-spin" />
++                        ) : (
++                          <>
++                            <Shield className="h-5 w-5" />
++                            Pagar con tarjeta
++                          </>
+                         )}
+-                        <div ref={paypalContainerRef} />
+-                      </div>
++                      </Button>
+                     )}
+ 
+                     {/* WhatsApp checkout */}
+diff --git a/src/pages/Profile.tsx b/src/pages/Profile.tsx
+index 235e858..32db5b2 100644
+--- a/src/pages/Profile.tsx
++++ b/src/pages/Profile.tsx
+@@ -46,7 +46,7 @@ import {
+   subscribeToPaymentMethods,
+   setDefaultPaymentMethod,
+   subscribeToUserOrders
+-} from '@/lib/firebase';
++} from '@/lib/database';
+ 
+ type TabType = 'profile' | 'orders' | 'payments' | 'settings';
+ 

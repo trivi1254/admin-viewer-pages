@@ -46,7 +46,7 @@ import {
   subscribeToPaymentMethods,
   setDefaultPaymentMethod,
   subscribeToUserOrders
-} from '@/lib/firebase';
+} from '@/lib/database';
 
 type TabType = 'profile' | 'orders' | 'payments' | 'settings';
 
