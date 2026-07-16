@@ -21,7 +21,7 @@ export function Preloader() {
     >
       {visual.heroImageUrl && (
         <div className="absolute inset-0 pointer-events-none">
-          <img src={visual.heroImageUrl} alt="" className="w-full h-full object-cover" />
+          <img src={visual.heroImageUrl} alt="" fetchPriority="high" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-[#0F172A]/70" />
         </div>
       )}
