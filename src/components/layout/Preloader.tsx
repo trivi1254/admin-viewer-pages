@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { MousePointerClick } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useSiteVisual } from '@/hooks/useSiteVisual';
 
 export function Preloader() {
   const [done, setDone] = useState(false);
+  const { visual } = useSiteVisual();
 
   useEffect(() => {
     const t = setTimeout(() => setDone(true), 1800);
@@ -17,6 +19,12 @@ export function Preloader() {
         done ? 'opacity-0 pointer-events-none' : 'opacity-100'
       )}
     >
+      {visual.heroImageUrl && (
+        <div className="absolute inset-0 pointer-events-none">
+          <img src={visual.heroImageUrl} alt="" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-[#0F172A]/70" />
+        </div>
+      )}
       <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 40%, var(--site-glow), transparent 65%)' }} />
 
       <div className="relative mb-8">

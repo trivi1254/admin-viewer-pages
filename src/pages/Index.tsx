@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   ArrowRight,
   ChevronRight,
@@ -46,6 +47,13 @@ const SUPPORT_CHANNELS = [
   { icon: Phone, label: 'Teléfono', sub: '+593 992 378 696', href: 'tel:+593992378696', accent: '#F59E0B' },
 ];
 
+const revealProps = {
+  initial: { opacity: 0, y: 40 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-100px' },
+  transition: { duration: 0.6, ease: 'easeOut' as const },
+};
+
 const Index = () => {
   const { products, loading } = useProducts();
   const { categories } = useCategories();
@@ -56,7 +64,7 @@ const Index = () => {
   return (
     <div className="bg-transparent">
       {/* Hero */}
-      <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden pt-10">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-10">
         <div className="absolute inset-0 pointer-events-none">
           <div
             className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl"
@@ -137,7 +145,7 @@ const Index = () => {
 
       {/* Categories */}
       {categories.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <motion.section {...revealProps} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="flex items-end justify-between mb-10">
             <div>
               <p className="text-sm font-medium uppercase tracking-widest mb-2" style={{ color: 'var(--site-primary)' }}>
@@ -170,11 +178,11 @@ const Index = () => {
               );
             })}
           </div>
-        </section>
+        </motion.section>
       )}
 
       {/* Featured Products */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <motion.section {...revealProps} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-end justify-between mb-10">
           <div>
             <p className="text-sm font-medium uppercase tracking-widest mb-2" style={{ color: 'var(--site-primary)' }}>
@@ -205,10 +213,10 @@ const Index = () => {
             ))}
           </div>
         )}
-      </section>
+      </motion.section>
 
       {/* Benefits */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+      <motion.section {...revealProps} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             { icon: Truck, title: 'Envío rápido', text: 'Envío gratis en pedidos mayores a $75. Llega en 2-5 días hábiles.' },
@@ -228,10 +236,10 @@ const Index = () => {
             </div>
           ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* Testimonials */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <motion.section {...revealProps} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center mb-12">
           <p className="text-sm font-medium uppercase tracking-widest mb-2" style={{ color: 'var(--site-primary)' }}>
             La confianza de miles
@@ -258,10 +266,10 @@ const Index = () => {
             </div>
           ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* Support */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <motion.section {...revealProps} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-10">
           <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--site-primary)' }}>
             <Headphones size={12} /> Soporte
@@ -294,10 +302,10 @@ const Index = () => {
             </a>
           ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* Final CTA */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+      <motion.section {...revealProps} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         <div
           className="relative rounded-3xl p-12 text-center overflow-hidden border"
           style={{
@@ -317,7 +325,7 @@ const Index = () => {
             </Link>
           </div>
         </div>
-      </section>
+      </motion.section>
     </div>
   );
 };

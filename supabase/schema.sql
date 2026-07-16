@@ -278,6 +278,12 @@ alter table user_profiles add column if not exists created_at timestamptz not nu
 alter table orders add column if not exists customer_email text;
 
 -- ---------------------------------------------------------------------
+-- Imagen de fondo personalizada del hero (además de los presets
+-- estacionales). Si está vacía, se usa el gradiente del preset activo.
+-- ---------------------------------------------------------------------
+alter table site_settings add column if not exists hero_image_url text;
+
+-- ---------------------------------------------------------------------
 -- Realtime: habilitar para que subscribeToProducts / subscribeToOrders
 -- reciban cambios en vivo (equivalente a onSnapshot de Firestore)
 -- ---------------------------------------------------------------------

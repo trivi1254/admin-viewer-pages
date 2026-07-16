@@ -86,11 +86,42 @@ export function VisualManager() {
         </div>
       </div>
 
+      {/* Custom hero background image */}
+      <div className="bg-card border border-white/8 rounded-2xl p-5 space-y-3">
+        <div>
+          <h3 className="font-semibold">Imagen de Fondo del Hero</h3>
+          <p className="text-muted-foreground text-xs mt-0.5">
+            Opcional. Si la dejas vacía, se usa el gradiente del tema estacional de abajo. Útil para ir cambiando la portada del sitio (ej. una foto por temporada) sin tocar código.
+          </p>
+        </div>
+        <input
+          placeholder="Pega la URL de una imagen (.jpg, .png, .webp)…"
+          value={form.heroImageUrl || ''}
+          onChange={(e) => setForm({ ...form, heroImageUrl: e.target.value })}
+          onBlur={handleSaveText}
+          className={inputClass}
+        />
+        {form.heroImageUrl && (
+          <div className="rounded-2xl overflow-hidden border border-white/10 aspect-[21/9] relative">
+            <img src={form.heroImageUrl} alt="Vista previa del fondo" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-black/40" />
+            <button
+              onClick={() => persist({ ...form, heroImageUrl: '' })}
+              className="absolute top-3 right-3 text-xs font-medium px-3 py-1.5 rounded-lg bg-black/60 text-white hover:bg-black/80 transition-colors"
+            >
+              Quitar imagen
+            </button>
+          </div>
+        )}
+      </div>
+
       {/* Seasonal presets */}
       <div className="bg-card border border-white/8 rounded-2xl p-5">
         <div className="mb-4">
           <h3 className="font-semibold">Tema Estacional</h3>
-          <p className="text-muted-foreground text-xs mt-0.5">Cambia el fondo del hero en el landing. Visible para todos de inmediato.</p>
+          <p className="text-muted-foreground text-xs mt-0.5">
+            Cambia el gradiente del hero en el landing. {form.heroImageUrl ? 'Se usa detrás de tu imagen de fondo como respaldo.' : 'Visible para todos de inmediato.'}
+          </p>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {BG_PRESETS.map((preset) => (

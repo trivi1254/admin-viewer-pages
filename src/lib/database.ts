@@ -158,6 +158,7 @@ export interface SiteVisual {
   promoCode: string;
   promoDiscount: string;
   bgPreset: string;
+  heroImageUrl?: string;
 }
 
 /* ========= MAPPERS (snake_case DB -> camelCase app) ========= */
@@ -257,6 +258,7 @@ function mapSiteVisual(row: any): SiteVisual {
     promoCode: row.promo_code ?? '',
     promoDiscount: row.promo_discount ?? '',
     bgPreset: row.bg_preset ?? 'default',
+    heroImageUrl: row.hero_image_url ?? undefined,
   };
 }
 
@@ -798,6 +800,7 @@ export async function updateSiteVisual(data: Partial<SiteVisual>) {
   if (data.promoCode !== undefined) payload.promo_code = data.promoCode;
   if (data.promoDiscount !== undefined) payload.promo_discount = data.promoDiscount;
   if (data.bgPreset !== undefined) payload.bg_preset = data.bgPreset;
+  if (data.heroImageUrl !== undefined) payload.hero_image_url = data.heroImageUrl || null;
 
   const { error } = await supabase.from('site_settings').upsert(payload);
   if (error) throw error;

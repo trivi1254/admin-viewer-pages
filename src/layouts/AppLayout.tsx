@@ -14,7 +14,13 @@ export function AppLayout() {
   }, [visual.bgPreset]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background relative z-0">
+      {visual.heroImageUrl && (
+        <div className="fixed inset-0 -z-10 pointer-events-none">
+          <img src={visual.heroImageUrl} alt="" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-[#0F172A]/80" />
+        </div>
+      )}
       {visual.bannerEnabled && visual.bannerText && (
         <div
           className="text-center text-sm font-medium py-2 px-4 text-white"
