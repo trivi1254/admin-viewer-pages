@@ -97,8 +97,8 @@ export default {
           to: { opacity: "1", transform: "scale(1)" },
         },
         "pulse-glow": {
-          "0%, 100%": { boxShadow: "0 0 20px -5px hsl(35 90% 50% / 0.3)" },
-          "50%": { boxShadow: "0 0 30px -5px hsl(35 90% 50% / 0.5)" },
+          "0%, 100%": { boxShadow: "0 0 20px -5px hsl(217 91% 60% / 0.3)" },
+          "50%": { boxShadow: "0 0 30px -5px hsl(217 91% 60% / 0.5)" },
         },
         "shimmer": {
           "0%": { backgroundPosition: "-200% 0" },
@@ -115,9 +115,9 @@ export default {
         "shimmer": "shimmer 2s linear infinite",
       },
       boxShadow: {
-        'glow': '0 0 40px -10px hsl(35 90% 50% / 0.35)',
-        'card': '0 8px 24px -8px hsl(35 20% 20% / 0.12)',
-        'card-hover': '0 16px 48px -12px hsl(35 20% 20% / 0.18)',
+        'glow': '0 0 40px -10px hsl(217 91% 60% / 0.35)',
+        'card': '0 8px 24px -8px hsl(222 47% 4% / 0.35)',
+        'card-hover': '0 16px 48px -12px hsl(222 47% 4% / 0.45)',
       },
     },
   },

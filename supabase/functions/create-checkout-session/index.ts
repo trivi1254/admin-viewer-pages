@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { items, customer, userId } = await req.json();
+    const { items, customer, customerEmail, userId } = await req.json();
 
     if (!Array.isArray(items) || items.length === 0) {
       return new Response(JSON.stringify({ error: 'Carrito vacío' }), {
@@ -39,6 +39,22 @@ Deno.serve(async (req) => {
     }
     if (!customer?.name || !customer?.phone || !customer?.address) {
       return new Response(JSON.stringify({ error: 'Faltan datos del cliente' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const nameParts = customer.name.trim().split(/\s+/);
+    const phoneDigits = customer.phone.replace(/\D/g, '');
+    if (
+      nameParts.length < 2 ||
+      nameParts.some((p: string) => p.length < 2) ||
+      !/^[a-zA-ZÀ-ÿ\s]+$/.test(customer.name) ||
+      phoneDigits.length < 9 ||
+      phoneDigits.length > 13 ||
+      customer.address.trim().length < 10
+    ) {
+      return new Response(JSON.stringify({ error: 'Datos de envío inválidos' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -75,13 +91,15 @@ Deno.serve(async (req) => {
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       line_items: lineItems,
-      success_url: `${origin}/cart?payment=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/cart?payment=cancelled`,
+      success_url: `${origin}/checkout?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/checkout?payment=cancelled`,
+      customer_email: customerEmail || undefined,
       metadata: {
         userId: userId ?? '',
         customerName: customer.name,
         customerPhone: customer.phone,
         customerAddress: customer.address,
+        customerEmail: customerEmail ?? '',
         // Guardamos id + cantidad; el webhook vuelve a leer precios de la DB.
         items: JSON.stringify(items),
       },

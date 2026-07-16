@@ -1,0 +1,100 @@
+/*
+ * Namespace paralelo de temas de marca (CSS vars en hex), independiente de las
+ * variables HSL de shadcn/ui en src/index.css. Estas vars solo las consumen
+ * los componentes nuevos del rediseño (Navbar, hero, CTAs de marca) vía
+ * utilidades Tailwind arbitrary value, p.ej. bg-[var(--site-primary)].
+ *
+ * El atributo data-site-theme se activa en la Fase 4 (selector de tema en
+ * Navbar). Sin ese atributo, :root ya define los valores del tema "blue" por
+ * defecto, así que este archivo es inerte hasta entonces.
+ */
+
+:root {
+  --site-primary: #3b82f6;
+  --site-dark: #2563eb;
+  --site-from: #3b82f6;
+  --site-to: #6366f1;
+  --site-glow: rgba(59, 130, 246, 0.25);
+}
+
+[data-site-theme="blue"] {
+  --site-primary: #3b82f6;
+  --site-dark: #2563eb;
+  --site-from: #3b82f6;
+  --site-to: #6366f1;
+  --site-glow: rgba(59, 130, 246, 0.25);
+}
+
+[data-site-theme="purple"] {
+  --site-primary: #8b5cf6;
+  --site-dark: #7c3aed;
+  --site-from: #8b5cf6;
+  --site-to: #a855f7;
+  --site-glow: rgba(139, 92, 246, 0.25);
+}
+
+[data-site-theme="emerald"] {
+  --site-primary: #10b981;
+  --site-dark: #059669;
+  --site-from: #10b981;
+  --site-to: #0ea5e9;
+  --site-glow: rgba(16, 185, 129, 0.25);
+}
+
+[data-site-theme="amber"] {
+  --site-primary: #f59e0b;
+  --site-dark: #d97706;
+  --site-from: #f59e0b;
+  --site-to: #ef4444;
+  --site-glow: rgba(245, 158, 11, 0.25);
+}
+
+[data-site-theme="rose"] {
+  --site-primary: #f43f5e;
+  --site-dark: #e11d48;
+  --site-from: #f43f5e;
+  --site-to: #ec4899;
+  --site-glow: rgba(244, 63, 94, 0.25);
+}
+
+/*
+ * Presets estacionales de fondo (Fase 6, panel Visual del admin). Solo
+ * afectan el hero de Landing/Navbar vía data-bg-preset, nunca --background
+ * global de shadcn.
+ */
+
+[data-bg-preset="christmas"] {
+  --preset-hero-from: #1a0000;
+  --preset-hero-to: #001a07;
+  --preset-accent: #ef4444;
+}
+
+[data-bg-preset="halloween"] {
+  --preset-hero-from: #1a0800;
+  --preset-hero-to: #0a0a0a;
+  --preset-accent: #f97316;
+}
+
+[data-bg-preset="newyear"] {
+  --preset-hero-from: #120d00;
+  --preset-hero-to: #06000f;
+  --preset-accent: #f59e0b;
+}
+
+[data-bg-preset="valentine"] {
+  --preset-hero-from: #1a000d;
+  --preset-hero-to: #0f0018;
+  --preset-accent: #f43f5e;
+}
+
+[data-bg-preset="summer"] {
+  --preset-hero-from: #001626;
+  --preset-hero-to: #00120e;
+  --preset-accent: #0ea5e9;
+}
+
+[data-bg-preset="blackfriday"] {
+  --preset-hero-from: #0a0a0a;
+  --preset-hero-to: #130d00;
+  --preset-accent: #eab308;
+}

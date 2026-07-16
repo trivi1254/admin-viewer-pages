@@ -34,8 +34,7 @@ export function useOrders() {
     const today = new Date().toDateString();
     return orders.filter(o => {
       if (!o.createdAt) return false;
-      const orderDate = o.createdAt.toDate();
-      return orderDate.toDateString() === today;
+      return new Date(o.createdAt).toDateString() === today;
     }).length;
   };
 

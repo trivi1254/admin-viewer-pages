@@ -1,112 +1,120 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap');
+@import './styles/site-themes.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  /*
+   * Tema único del sitio: fondo oscuro premium (paleta del rediseño
+   * "Jorstan Click" — slate-900/blue-500). Ya no hay variante clara: el
+   * portafolio adopta el look oscuro como identidad visual permanente.
+   * El bloque .dark se mantiene idéntico por si en el futuro se activa
+   * next-themes, para que no cambie nada al alternar.
+   */
   :root {
-    --background: 45 20% 98%;
-    --foreground: 30 10% 15%;
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 30 10% 15%;
+    --card: 215 25% 27%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 30 10% 15%;
+    --popover: 217 33% 17%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 35 90% 50%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 35 30% 92%;
-    --secondary-foreground: 30 10% 20%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 40 20% 94%;
-    --muted-foreground: 30 10% 45%;
+    --muted: 217 19% 20%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 35 80% 55%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 217 91% 60%;
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 72% 55%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 35 20% 88%;
-    --input: 35 20% 90%;
-    --ring: 35 90% 50%;
+    --border: 217 19% 24%;
+    --input: 217 19% 24%;
+    --ring: 217 91% 60%;
 
     --radius: 0.75rem;
 
-    --success: 145 65% 42%;
-    --success-foreground: 0 0% 100%;
+    --success: 160 84% 39%;
+    --success-foreground: 210 40% 98%;
 
-    --warning: 40 95% 55%;
-    --warning-foreground: 30 10% 15%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 222 47% 11%;
 
     /* Custom gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(35, 90%, 50%) 0%, hsl(25, 85%, 55%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(35, 90%, 50%) 0%, hsl(45, 95%, 60%) 50%, hsl(25, 85%, 55%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0, 0%, 100%) 0%, hsl(40, 30%, 98%) 100%);
-    --gradient-dark: linear-gradient(135deg, hsl(30, 15%, 12%) 0%, hsl(30, 20%, 8%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(217, 91%, 60%) 0%, hsl(234, 89%, 65%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(222, 47%, 11%) 0%, hsl(217, 33%, 17%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(215, 25%, 27%) 0%, hsl(217, 33%, 17%) 100%);
+    --gradient-dark: linear-gradient(135deg, hsl(222, 47%, 9%) 0%, hsl(222, 47%, 6%) 100%);
 
     /* Shadows */
-    --shadow-sm: 0 2px 8px -2px hsl(35 20% 20% / 0.08);
-    --shadow-md: 0 8px 24px -8px hsl(35 20% 20% / 0.12);
-    --shadow-lg: 0 16px 48px -12px hsl(35 20% 20% / 0.18);
-    --shadow-glow: 0 0 40px -10px hsl(35 90% 50% / 0.35);
+    --shadow-sm: 0 2px 8px -2px hsl(222 47% 4% / 0.35);
+    --shadow-md: 0 8px 24px -8px hsl(222 47% 4% / 0.45);
+    --shadow-lg: 0 16px 48px -12px hsl(222 47% 4% / 0.55);
+    --shadow-glow: 0 0 40px -10px hsl(217 91% 60% / 0.35);
 
-    --sidebar-background: 40 15% 97%;
-    --sidebar-foreground: 30 10% 25%;
-    --sidebar-primary: 35 90% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 35 25% 92%;
-    --sidebar-accent-foreground: 30 10% 20%;
-    --sidebar-border: 35 20% 88%;
-    --sidebar-ring: 35 90% 50%;
+    --sidebar-background: 217 33% 14%;
+    --sidebar-foreground: 210 40% 95%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 217 19% 20%;
+    --sidebar-accent-foreground: 210 40% 95%;
+    --sidebar-border: 217 19% 24%;
+    --sidebar-ring: 217 91% 60%;
   }
 
   .dark {
-    --background: 30 15% 8%;
-    --foreground: 40 20% 95%;
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
 
-    --card: 30 15% 12%;
-    --card-foreground: 40 20% 95%;
+    --card: 215 25% 27%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 30 15% 10%;
-    --popover-foreground: 40 20% 95%;
+    --popover: 217 33% 17%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 35 90% 55%;
-    --primary-foreground: 30 15% 8%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 30 15% 18%;
-    --secondary-foreground: 40 20% 90%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 30 12% 18%;
-    --muted-foreground: 40 15% 60%;
+    --muted: 217 19% 20%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 35 85% 60%;
-    --accent-foreground: 30 15% 8%;
+    --accent: 217 91% 60%;
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 65% 50%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 30 12% 22%;
-    --input: 30 12% 22%;
-    --ring: 35 90% 55%;
+    --border: 217 19% 24%;
+    --input: 217 19% 24%;
+    --ring: 217 91% 60%;
 
-    --sidebar-background: 30 15% 10%;
-    --sidebar-foreground: 40 20% 90%;
-    --sidebar-primary: 35 90% 55%;
-    --sidebar-primary-foreground: 30 15% 8%;
-    --sidebar-accent: 30 12% 18%;
-    --sidebar-accent-foreground: 40 20% 90%;
-    --sidebar-border: 30 12% 22%;
-    --sidebar-ring: 35 90% 55%;
+    --sidebar-background: 217 33% 14%;
+    --sidebar-foreground: 210 40% 95%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 217 19% 20%;
+    --sidebar-accent-foreground: 210 40% 95%;
+    --sidebar-border: 217 19% 24%;
+    --sidebar-ring: 217 91% 60%;
   }
 }
 
 @layer base {
   * {
-    @apply border-gray-200;
+    @apply border-border;
     box-sizing: border-box;
   }
 
@@ -171,4 +179,38 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--primary) / 0.5);
+}
+
+/* Preloader (una sola vez al cargar la app) y transición de página (cada
+   navegación) — animaciones del rediseño, documentadas en informe.md §12. */
+@keyframes preloader-ring-spin {
+  to { transform: rotate(360deg); }
+}
+.preloader-ring {
+  animation: preloader-ring-spin 0.9s linear infinite;
+}
+
+@keyframes preloader-logo-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+.preloader-logo {
+  animation: preloader-logo-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes preloader-bar-progress {
+  0% { width: 0%; }
+  70% { width: 85%; }
+  100% { width: 100%; }
+}
+.preloader-bar {
+  animation: preloader-bar-progress 1.6s ease-out forwards;
+}
+
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.page-enter {
+  animation: page-enter 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
 }

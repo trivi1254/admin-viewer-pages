@@ -13,6 +13,9 @@ dist-ssr
 *.local
 .env
 
+# Estado local del CLI de Supabase (versión de servicios, proyecto vinculado)
+supabase/.temp/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

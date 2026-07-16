@@ -30,11 +30,11 @@ import { deleteOrder, updateOrderStatus, Order } from '@/lib/database';
 import { toast } from 'sonner';
 
 const STATUS_OPTIONS: { value: Order['status']; label: string; icon: typeof Clock; color: string }[] = [
-  { value: 'pending', label: 'Pendiente', icon: Clock, color: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
-  { value: 'processing', label: 'Procesando', icon: PackageCheck, color: 'bg-blue-100 text-blue-800 border-blue-300' },
-  { value: 'shipped', label: 'Enviado', icon: Truck, color: 'bg-purple-100 text-purple-800 border-purple-300' },
-  { value: 'delivered', label: 'Entregado', icon: CheckCircle2, color: 'bg-green-100 text-green-800 border-green-300' },
-  { value: 'cancelled', label: 'Cancelado', icon: XCircle, color: 'bg-red-100 text-red-800 border-red-300' },
+  { value: 'pending', label: 'Pendiente', icon: Clock, color: 'bg-amber-500/15 text-amber-400 border-amber-500/30' },
+  { value: 'processing', label: 'Procesando', icon: PackageCheck, color: 'bg-blue-500/15 text-blue-400 border-blue-500/30' },
+  { value: 'shipped', label: 'Enviado', icon: Truck, color: 'bg-purple-500/15 text-purple-400 border-purple-500/30' },
+  { value: 'delivered', label: 'Entregado', icon: CheckCircle2, color: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' },
+  { value: 'cancelled', label: 'Cancelado', icon: XCircle, color: 'bg-red-500/15 text-red-400 border-red-500/30' },
 ];
 
 function getStatusOption(status: string) {
@@ -84,7 +84,7 @@ export function OrdersPanel() {
   };
 
   const handlePrint = (order: typeof orders[0]) => {
-    const orderDate = order.createdAt?.toDate() || new Date();
+    const orderDate = order.createdAt ? new Date(order.createdAt) : new Date();
 
     const printContent = `
       <html>
@@ -104,7 +104,7 @@ export function OrdersPanel() {
           </style>
         </head>
         <body>
-          <h1>Jorstan Click</h1>
+          <h1>JorstanClick</h1>
           <h2>COMPROBANTE DE PEDIDO</h2>
 
           <div class="info-box">
@@ -212,7 +212,7 @@ export function OrdersPanel() {
             <div className="space-y-4">
               <AnimatePresence mode="popLayout">
                 {orders.map((order, index) => {
-                  const orderDate = order.createdAt?.toDate() || new Date();
+                  const orderDate = order.createdAt ? new Date(order.createdAt) : new Date();
                   const currentStatus = getStatusOption(order.status || 'pending');
                   const isExpanded = expandedOrder === order.id;
                   const StatusIcon = currentStatus.icon;
@@ -309,8 +309,8 @@ export function OrdersPanel() {
                                             onClick={() => setSelectedStatuses(prev => ({ ...prev, [order.id]: opt.value }))}
                                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
                                               isSelected
-                                                ? opt.color + ' ring-2 ring-offset-1 ring-current'
-                                                : 'border-gray-200 text-gray-500 hover:border-gray-400'
+                                                ? opt.color + ' ring-2 ring-offset-1 ring-offset-background ring-current'
+                                                : 'border-border text-muted-foreground hover:border-foreground/30'
                                             }`}
                                           >
                                             <Icon className="h-3.5 w-3.5" />
@@ -343,7 +343,7 @@ export function OrdersPanel() {
                                           const entryStatus = getStatusOption(entry.status);
                                           const EntryIcon = entryStatus.icon;
                                           return (
-                                            <div key={idx} className="flex items-start gap-2 text-xs p-2 rounded bg-white border">
+                                            <div key={idx} className="flex items-start gap-2 text-xs p-2 rounded bg-card border border-border">
                                               <EntryIcon className="h-3.5 w-3.5 mt-0.5 shrink-0" />
                                               <div className="min-w-0">
                                                 <span className="font-medium">{entryStatus.label}:</span>{' '}

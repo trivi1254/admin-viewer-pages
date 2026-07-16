@@ -155,8 +155,134 @@ create policy "admins_temp_read"
   using (true);
 
 -- ---------------------------------------------------------------------
+-- CATEGORÍAS (rediseño admin — reemplaza la lista hardcodeada en
+-- ProductsManager). products.category sigue siendo texto libre, sin FK
+-- dura, para no romper productos existentes.
+-- ---------------------------------------------------------------------
+create table if not exists categories (
+  id uuid primary key default gen_random_uuid(),
+  name text not null unique,
+  icon text,
+  image text,
+  gradient text,
+  sort_order int not null default 0,
+  created_at timestamptz not null default now()
+);
+
+alter table categories enable row level security;
+
+create policy "categories_public_read"
+  on categories for select
+  using (true);
+
+-- Mismo TODO de seguridad que products_temp_write (ver nota arriba).
+create policy "categories_temp_write"
+  on categories for all
+  using (true)
+  with check (true);
+
+-- ---------------------------------------------------------------------
+-- RESEÑAS (rediseño admin — moderación desde /admin, mostradas en
+-- /product/:id)
+-- ---------------------------------------------------------------------
+create table if not exists reviews (
+  id uuid primary key default gen_random_uuid(),
+  product_id uuid not null references products(id) on delete cascade,
+  author text not null,
+  rating int not null check (rating between 1 and 5),
+  text text,
+  visible boolean not null default true,
+  featured boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_reviews_product_id on reviews (product_id);
+
+alter table reviews enable row level security;
+
+create policy "reviews_public_read"
+  on reviews for select
+  using (true);
+
+create policy "reviews_temp_write"
+  on reviews for all
+  using (true)
+  with check (true);
+
+-- ---------------------------------------------------------------------
+-- CONFIGURACIÓN VISUAL DEL SITIO (banner, promo, preset estacional)
+-- Fila única (id = 1).
+-- ---------------------------------------------------------------------
+create table if not exists site_settings (
+  id int primary key default 1,
+  banner_enabled boolean not null default false,
+  banner_text text,
+  banner_color text,
+  promo_enabled boolean not null default false,
+  promo_title text,
+  promo_code text,
+  promo_discount text,
+  bg_preset text not null default 'default',
+  updated_at timestamptz not null default now(),
+  constraint site_settings_singleton check (id = 1)
+);
+
+insert into site_settings (id) values (1) on conflict (id) do nothing;
+
+alter table site_settings enable row level security;
+
+create policy "site_settings_public_read"
+  on site_settings for select
+  using (true);
+
+create policy "site_settings_temp_write"
+  on site_settings for all
+  using (true)
+  with check (true);
+
+-- ---------------------------------------------------------------------
+-- PRODUCTOS — campos adicionales para el editor fiel al rediseño
+-- (precio original/badge/specs/stock). Migración incremental sobre la
+-- tabla `products` ya existente, sin romper filas previas.
+-- ---------------------------------------------------------------------
+alter table products add column if not exists original_price numeric(10,2);
+alter table products add column if not exists badge text;
+alter table products add column if not exists specs jsonb not null default '[]'::jsonb;
+alter table products add column if not exists in_stock boolean not null default true;
+
+-- ---------------------------------------------------------------------
+-- PRODUCTOS — galería de imágenes (varias fotos por producto). `image`
+-- se mantiene como la principal/portada por compatibilidad con el resto
+-- del sitio (carrito, tarjetas de producto, panel admin).
+-- ---------------------------------------------------------------------
+alter table products add column if not exists images jsonb not null default '[]'::jsonb;
+
+-- ---------------------------------------------------------------------
+-- PERFILES DE USUARIO — campos adicionales para la página de Cuenta
+-- fiel al rediseño (nombre/apellido, fecha de nacimiento, documento, bio,
+-- libreta de direcciones, preferencias de notificaciones).
+-- ---------------------------------------------------------------------
+alter table user_profiles add column if not exists first_name text;
+alter table user_profiles add column if not exists last_name text;
+alter table user_profiles add column if not exists date_of_birth text;
+alter table user_profiles add column if not exists id_document text;
+alter table user_profiles add column if not exists bio text;
+alter table user_profiles add column if not exists addresses jsonb not null default '[]'::jsonb;
+alter table user_profiles add column if not exists notification_prefs jsonb not null default '{"email":true,"sms":false,"marketing":true,"twofa":false}'::jsonb;
+alter table user_profiles add column if not exists created_at timestamptz not null default now();
+
+-- ---------------------------------------------------------------------
+-- ---------------------------------------------------------------------
+-- PEDIDOS — email del cliente, para el correo de confirmación de compra.
+-- ---------------------------------------------------------------------
+alter table orders add column if not exists customer_email text;
+
+-- ---------------------------------------------------------------------
 -- Realtime: habilitar para que subscribeToProducts / subscribeToOrders
 -- reciban cambios en vivo (equivalente a onSnapshot de Firestore)
 -- ---------------------------------------------------------------------
 alter publication supabase_realtime add table products;
 alter publication supabase_realtime add table orders;
+alter publication supabase_realtime add table categories;
+alter publication supabase_realtime add table reviews;
+alter publication supabase_realtime add table site_settings;

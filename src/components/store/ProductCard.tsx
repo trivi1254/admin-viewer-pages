@@ -1,108 +1,124 @@
-import { motion } from 'framer-motion';
-import { ShoppingCart, Plus, Tag, Eye } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { forwardRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ShoppingCart, Heart } from 'lucide-react';
 import { Product } from '@/lib/database';
 import { useCart } from '@/contexts/CartContext';
+import { productGradient } from '@/lib/productGradient';
+import { StarRating } from './StarRating';
+import { Btn } from './Btn';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 interface ProductCardProps {
   product: Product;
-  index: number;
-  onClick?: () => void;
+  index?: number;
+  rating?: number;
+  reviewCount?: number;
 }
 
-export function ProductCard({ product, index, onClick }: ProductCardProps) {
+const BADGE_STYLES: Record<string, string> = {
+  Sale: 'bg-red-500/15 text-red-400',
+  New: 'bg-green-500/15 text-green-400',
+  'Best Seller': 'bg-blue-500/15 text-blue-400',
+};
+
+export const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(function ProductCard(
+  { product, rating, reviewCount },
+  ref
+) {
   const { addToCart } = useCart();
-
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    addToCart(product);
-    toast.success(`${product.name} agregado al carrito`, {
-      duration: 2000,
-    });
-  };
-
+  const [wishlisted, setWishlisted] = useState(false);
   const hasImage = product.image && product.image !== 'https://via.placeholder.com/150';
 
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!product.inStock) return;
+    addToCart(product);
+    toast.success(`${product.name} agregado al carrito`, { duration: 2000 });
+  };
+
+  const handleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setWishlisted((w) => !w);
+  };
+
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      transition={{ duration: 0.4, delay: index * 0.05 }}
-      whileHover={{ y: -8 }}
-      className="group cursor-pointer"
-      onClick={onClick}
+    <div
+      ref={ref}
+      className="group relative flex flex-col bg-card border border-white/8 rounded-2xl overflow-hidden hover:border-white/16 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/40"
     >
-      <Card className="overflow-hidden border-border/50 shadow-card transition-all duration-300 hover:shadow-card-hover hover:border-primary/30 h-full">
-        <div className="relative h-48 overflow-hidden">
+      <Link to={`/product/${product.id}`} className="contents">
+        <div
+          className={cn('relative h-52 flex items-center justify-center overflow-hidden', !hasImage && `bg-gradient-to-br ${productGradient(product.id)}`)}
+        >
           {hasImage ? (
             <img
               src={product.image}
               alt={product.name}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
             />
           ) : (
-            <div className="w-full h-full gradient-primary flex items-center justify-center">
-              <motion.span
-                className="text-6xl"
-                whileHover={{ scale: 1.2, rotate: 5 }}
-                transition={{ type: 'spring', stiffness: 300 }}
-              >
-                {product.icon || '\uD83D\uDCE6'}
-              </motion.span>
-            </div>
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-
-          {/* Category badge */}
-          {product.category && (
-            <div className="absolute top-2 left-2">
-              <Badge className="bg-[#00d4aa]/90 text-white border-none text-xs px-2 py-0.5">
-                <Tag className="h-3 w-3 mr-1" />
-                {product.category}
-              </Badge>
-            </div>
+            <span className="text-6xl select-none group-hover:scale-110 transition-transform duration-300">
+              {product.icon || '📦'}
+            </span>
           )}
 
-          {/* View detail hint */}
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <div className="bg-white/90 rounded-full p-3 shadow-lg">
-              <Eye className="h-6 w-6 text-[#1a3a5c]" />
-            </div>
-          </div>
-        </div>
-
-        <CardContent className="p-5">
-          <h3 className="font-semibold text-lg mb-2 line-clamp-1 group-hover:text-primary transition-colors">
-            {product.name}
-          </h3>
-
-          <p className="text-sm text-muted-foreground mb-4 line-clamp-2 min-h-[2.5rem]">
-            {product.description || 'Producto de excelente calidad'}
-          </p>
-
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground">Precio</span>
-              <span className="text-2xl font-bold text-primary">
-                ${product.price.toFixed(2)}
+          {product.badge && (
+            <div className="absolute top-3 left-3">
+              <span className={cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium', BADGE_STYLES[product.badge])}>
+                {product.badge}
               </span>
             </div>
+          )}
 
-            <Button
-              onClick={handleAddToCart}
-              className="gap-2 gradient-primary hover:opacity-90 text-primary-foreground shadow-glow"
-            >
-              <Plus className="h-4 w-4" />
-              <ShoppingCart className="h-4 w-4" />
-            </Button>
+          <button
+            onClick={handleWishlist}
+            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center hover:bg-black/50 transition-colors"
+          >
+            <Heart size={14} className={wishlisted ? 'fill-rose-400 text-rose-400' : 'text-white/60'} />
+          </button>
+
+          {!product.inStock && (
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+              <span className="text-sm font-medium text-white/60">Agotado</span>
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-col flex-1 p-4 gap-3">
+          <div>
+            {product.category && (
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{product.category}</p>
+            )}
+            <h3 className="font-semibold text-sm leading-snug line-clamp-1">{product.name}</h3>
           </div>
-        </CardContent>
-      </Card>
-    </motion.div>
+
+          {rating !== undefined && reviewCount !== undefined && reviewCount > 0 && (
+            <div className="flex items-center gap-2">
+              <StarRating rating={rating} />
+              <span className="text-xs text-muted-foreground">({reviewCount})</span>
+            </div>
+          )}
+
+          <div className="flex items-baseline gap-2 mt-auto">
+            <span className="text-lg font-bold">${product.price.toFixed(2)}</span>
+            {product.originalPrice && <span className="text-sm text-muted-foreground line-through">${product.originalPrice.toFixed(2)}</span>}
+          </div>
+        </div>
+      </Link>
+
+      <div className="flex gap-2 px-4 pb-4">
+        <Link to={`/product/${product.id}`} className="flex-1">
+          <Btn variant="secondary" size="sm" className="w-full">
+            Ver
+          </Btn>
+        </Link>
+        <Btn variant="primary" size="sm" className="flex-1" onClick={handleAddToCart} disabled={!product.inStock}>
+          <ShoppingCart size={13} /> Agregar
+        </Btn>
+      </div>
+    </div>
   );
-}
+});
