@@ -104,8 +104,10 @@ export function ProductsManager() {
         toast.success('Producto actualizado con éxito!');
       }
       closeModal();
-    } catch {
-      toast.error('Error al guardar el producto');
+    } catch (err) {
+      console.error('Error al guardar el producto:', err);
+      const message = err instanceof Error ? err.message : 'Error al guardar el producto';
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -116,8 +118,10 @@ export function ProductsManager() {
       try {
         await deleteProduct(id);
         toast.success('Producto eliminado');
-      } catch {
-        toast.error('Error al eliminar producto');
+      } catch (err) {
+        console.error('Error al eliminar producto:', err);
+        const message = err instanceof Error ? err.message : 'Error al eliminar producto';
+        toast.error(message);
       }
     }
   };
